@@ -1,0 +1,26 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+  }
+
+
+.login-wrapper{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#sign-in{
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    background-color: var(--primary-color);
+    width:50%;
+}
