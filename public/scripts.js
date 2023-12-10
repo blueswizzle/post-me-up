@@ -1,33 +1,33 @@
-const loginButton =document.getElementById('login-button')
-const signupButton =document.getElementById('signup-button')
 
-loginButton.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('exampleInputEmail1').value;
-    const password = document.getElementById('exampleInputPassword1').value;
-    const data = {
-        email: email,
-        password: password
-    };
 
+const mainContainer= document.getElementById('main-container')
+
+document.addEventListener('DOMContentLoaded', async () => {
     try {
-        const response = await fetch('/gaians/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            console.log("Logged in", result);
-        } else {
-            const errorData = await response.json();
-            console.log("Error", errorData.message);
+        const response = await fetch ('/gaians', {
+            method:'GET',
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+        const gaians = response.json()
+        if(response.ok){
+            if(gaians.length > 0){
+                console.log(gaians)
+            }else{
+                console.log("No gaians")
+            }
+        }else{
+            console.log(response.error)
         }
-
     } catch (error) {
-        console.log(error);
+        console.log(error)
     }
-});
+  });
+  
+
+
+
+function showGaians(gaians){
+
+}

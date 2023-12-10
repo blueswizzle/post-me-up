@@ -4,9 +4,7 @@ CREATE TABLE gaian(
     id BIGSERIAL PRIMARY KEY,
     firstname VARCHAR(200) NOT NULL,
     lastname varchar(200) NOT NULL,
-    username VARCHAR(200) NOT NULL,
-    pass VARCHAR(200) NOT NULL,
-    email VARCHAR(200) NOT NULL
+    username VARCHAR(200) NOT NULL
 );
 
 

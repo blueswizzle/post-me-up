@@ -10,7 +10,7 @@ router.get('/gaians', async(req,res)=>{
         const AllGaians = await pool.query(
             "SELECT * FROM gaian"
         );
-
+        console.log("Gaians are", AllGaians.rows)
         return res.status(200).json(AllGaians.rows)
     } catch (error) {
         console.log(error.message)
@@ -26,6 +26,7 @@ router.get('/gaians/:id', async (req,res)=>{
         const gaian = await pool.query(
             'SELECT * FROM gaian WHERE gaian.id = $1', [id]
         )
+        
         return res.status(200).json(gaian.rows)
     } catch (error) {
         console.log(error.message)
@@ -41,8 +42,8 @@ router.post('/gaians/login', async (req, res) => {
         const data = req.body;
         console.log("DATA is ", data)
         const gaian = await pool.query(
-            'SELECT * FROM gaian WHERE gaian.email = $1',
-            [data.email]
+            'SELECT * FROM gaian WHERE gaian.email = $1 AND gaian.pass = $2',
+            [data.email,data.pass]
         );
 
         if (gaian.rows.length === 0) {
@@ -75,12 +76,16 @@ router.post('/gaians', async (req,res)=>{
         const data = req.body;
         console.log("REQ BODY IS ", data)
         const gaian = await pool.query(
-            "INSERT INTO gaian (firstname,lastname,username,pass,email) VALUES ($1,$2,$3,$4,$5) RETURNING *",
-            [data.firstname, data.lastname,data.username,data.pass,data.email]
+            "INSERT INTO gaian (firstname,lastname,username) VALUES ($1,$2,$3) RETURNING *",
+            [data.firstname, data.lastname,data.username]
             );
 
         return res.status(200).json(gaian.rows[0]);
     } catch (error) {
+          // Check if the error is a unique constraint violation
+        if (error.code === '23505' && error.constraint === 'gaian_email_key') {
+            return res.status(400).json({ error: "Email already exists" });
+        }
         console.log(error.message)
         return res.status(500).json({error:error})
     }
@@ -147,7 +152,7 @@ router.get('/posts/:search', async (req, res) => {
 
 
 router.get('/',(req,res)=>{
-    res.sendFile('./frontend/index.html')
+    res.sendFile('index.html')
 })
 
 module.exports = router;

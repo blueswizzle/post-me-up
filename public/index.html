@@ -8,48 +8,79 @@
     <title>Post Me Up</title>
 </head>
 <body>
-
-  <h1 class = "login-welcome">Welcome, poster! Login in or sign up below!</h1>
-
-    <div id="login-main" class="container d-flex justify-content-center flex-column align-items-center">
-      
-        <form id="login-form">
-            <div class="mb-3">
-              <label for="exampleInputEmail1" class="form-label">Email address</label>
-              <input type="email" class="form-control" name="exampleInputEmail1" id="exampleInputEmail1" required aria-describedby="emailHelp">
-              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-            </div>
-            <div class="mb-3">
-              <label for="exampleInputPassword1" class="form-label">Password</label>
-              <input type="password" class="form-control" id="exampleInputPassword1" name="exampleInputPassword1" required>
-            </div>
-            <button id="login-button" type="submit" class="btn btn-primary">Login</button>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Post Me Up</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Create new Gaian</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Create new post</a>
+          </li>
+        </ul>
+        <form class="d-flex" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
-
-
-        <form id="signup-form" class="row g-3">
-            <div class="col-md-6">
-              <label for="inputEmail4" class="form-label">Email</label>
-              <input type="email" class="form-control" id="inputEmail4" required>
-            </div>
-            <div class="col-md-6">
-              <label for="inputPassword4" class="form-label">Password</label>
-              <input type="password" class="form-control" id="inputPassword4" required>
-            </div>
-            <div class="col-md-6">
-              <label for="firstname" class="form-label">First Name</label>
-              <input type="text" class="form-control" id="firstname" required>
-            </div>
-            <div class="col-md-6">
-              <label for="lastname" class="form-label">Last Name</label>
-              <input type="text" class="form-control" id="lastname" required>
-            </div>
-            <div class="col-12">
-              <button id="signup-button" type="submit" class="btn btn-primary">Sign up</button>
-            </div>
-          </form>
-
+      </div>
     </div>
+  </nav>
+ 
+  <div class="container-fluid mt-5" id="main-container">
+    <div class="row">
+  
+      <!-- Grid Item 1 -->
+      <div class="col-md-3 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Username 1</h5>
+            <p class="card-text">First Name 1 Last Name 1</p>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Grid Item 2 -->
+      <div class="col-md-3 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Username 2</h5>
+            <p class="card-text">First Name 2 Last Name 2</p>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Grid Item 3 -->
+      <div class="col-md-3 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Username 3</h5>
+            <p class="card-text">First Name 3 Last Name 3</p>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Grid Item 4 -->
+      <div class="col-md-3 mb-3">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Username 4</h5>
+            <p class="card-text">First Name 4 Last Name 4</p>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Add more grid items as needed -->
+  
+    </div>
+  </div>
     
 
 
