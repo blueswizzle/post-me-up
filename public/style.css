@@ -1,26 +1,38 @@
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
 :root {
-    --primary-color: #3498db;
-    --secondary-color: #2ecc71;
-  }
-
-
-.login-wrapper{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+    --primary-color: #7EB2DD;
+    --secondary-color: #FFE8D4;
 }
 
-#sign-in{
-    display: flex;
-    flex-direction: column;
-    padding: 2rem;
+#login-main{
+    margin-top: 5rem;
+    border-radius: 10px;
     background-color: var(--primary-color);
-    width:50%;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 6px 6px rgba(0, 0, 0, 0.12);
+    padding: 1rem;
+}
+
+
+.login-welcome{
+    text-align: center;
+    margin-top: 2rem;
+}
+
+#login-form{
+    border-bottom: 2px solid var(--secondary-color);
+    
+    padding: 1rem;
+}
+
+#login-form button{
+    margin-bottom: 1.3rem;
+}
+
+#signup-form{
+    margin-top: 1rem;
 }
