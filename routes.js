@@ -35,6 +35,27 @@ router.get('/gaians/:id', async (req,res)=>{
 
 })
 
+
+router.post('/gaians/login', async (req, res) => {
+    try {
+        const data = req.body;
+        console.log("DATA is ", data)
+        const gaian = await pool.query(
+            'SELECT * FROM gaian WHERE gaian.email = $1',
+            [data.email]
+        );
+
+        if (gaian.rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        return res.status(200).json({ user: gaian.rows });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: error });
+    }
+});
+
 // SELECT ALL POSTS FROM DATABASE
 router.get('/posts', async (req,res)=>{
     try {
