@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(response.ok){
             if(gaians.length > 0){
                 console.log(gaians)
+
             }else{
                 console.log("No gaians")
             }
@@ -29,5 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 function showGaians(gaians){
-
+    gaians.forEach(gaian => {
+        
+    });
 }
