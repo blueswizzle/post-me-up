@@ -1,3 +1,5 @@
-const createAccountForm = document.getElementById('create-new-account-form')
+const createGaian = document.getElementById('create-gaian')
 
-createAccountForm.style.display = 'none'
+createGaian.addEventListener('click', async()=>{
+    
+})

@@ -19,14 +19,14 @@ router.get('/gaians', async(req,res)=>{
 })
 
 // GET A SPECIFIC GAIAN
-router.get('/gaians/:id', async (req,res)=>{
+router.get('/gaians/:username', async (req,res)=>{
     try {
-        const id= req.params.id
+        const username= req.params.username
 
         const gaian = await pool.query(
-            'SELECT * FROM gaian WHERE gaian.id = $1', [id]
+            'SELECT * FROM gaian WHERE gaian.username= $1', [username]
         )
-        return res.status(200).json(gaian.rows)
+        return res.status(200).json(gaian.rows[0])
     } catch (error) {
         console.log(error.message)
         return res.status(500).json(error)
@@ -54,8 +54,8 @@ router.post('/gaians', async (req,res)=>{
         const data = req.body;
         console.log("REQ BODY IS ", data)
         const gaian = await pool.query(
-            "INSERT INTO gaian (firstname,lastname,username,pass,email) VALUES ($1,$2,$3,$4,$5) RETURNING *",
-            [data.firstname, data.lastname,data.username,data.pass,data.email]
+            "INSERT INTO gaian (username) VALUES ($1) RETURNING *",
+            [data.username]
             );
 
         return res.status(200).json(gaian.rows[0]);
@@ -70,13 +70,19 @@ router.post('/gaians', async (req,res)=>{
 // CREATE NEW POST FOR A GAIAN
 router.post('/gaian/post', async (req,res)=>{
     try {
-        const {gaian_id, title,content, post_date, post_time} = req.body;
+        const {title,content,username} = req.body;
+        const gaian = await pool.query(
+            "SELECT * FROM gaian WHERE gaian.username = $1", [username]
+        )
+        if(gaian.rows.length ==0){
+            return res.status(404).json({error:"Gaian not found"})
+        }
 
         const newPost = await pool.query(
-            "INSERT INTO post (gaian_id,title,content,post_date,post_time) VALUES($1,$2,$3,$4,$5) RETURNING *",
-            [gaian_id,title,content,post_date,post_time]
+            "INSERT INTO post (gaian_id,title,content) VALUES($1,$2,$3) RETURNING *",
+            [gaian.rows[0].id,title,content]
         )
-        return res.status(200).json({message: 'Created new post', post: newPost.rows})
+        return res.status(200).json({message: 'Created new post', post: newPost.rows })
     } catch (error) {
         console.log(error.message)
         return res.status(500).json(error)

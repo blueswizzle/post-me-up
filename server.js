@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const PORT = 4000;
-const pool = require('./db');
 const routes = require('./routes')
 app.use(cors());
 

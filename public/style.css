@@ -1,26 +1,19 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+.post{
+    transition: 0.2s;
+}
+.post:hover{
+    transform: scale(1.1);
+    cursor: pointer;
 }
 
-:root {
-    --primary-color: #3498db;
-    --secondary-color: #2ecc71;
-  }
-
-
-.login-wrapper{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+#create-gaian:hover{
+    cursor: pointer;
 }
 
-#sign-in{
-    display: flex;
-    flex-direction: column;
-    padding: 2rem;
-    background-color: var(--primary-color);
-    width:50%;
+#home-page:hover{
+    cursor: pointer;
+}
+
+#create-post:hover{
+    cursor: pointer;
 }
