@@ -10,7 +10,7 @@ router.get('/gaians', async(req,res)=>{
         const AllGaians = await pool.query(
             "SELECT * FROM gaian"
         );
-
+        console.log("Gaians are", AllGaians.rows)
         return res.status(200).json(AllGaians.rows)
     } catch (error) {
         console.log(error.message)
@@ -34,6 +34,27 @@ router.get('/gaians/:username', async (req,res)=>{
 
 
 })
+
+
+router.post('/gaians/login', async (req, res) => {
+    try {
+        const data = req.body;
+        console.log("DATA is ", data)
+        const gaian = await pool.query(
+            'SELECT * FROM gaian WHERE gaian.email = $1 AND gaian.pass = $2',
+            [data.email,data.pass]
+        );
+
+        if (gaian.rows.length === 0) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        return res.status(200).json({ user: gaian.rows });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: error });
+    }
+});
 
 // SELECT ALL POSTS FROM DATABASE
 router.get('/posts', async (req,res)=>{
@@ -60,6 +81,10 @@ router.post('/gaians', async (req,res)=>{
 
         return res.status(200).json(gaian.rows[0]);
     } catch (error) {
+          // Check if the error is a unique constraint violation
+        if (error.code === '23505' && error.constraint === 'gaian_email_key') {
+            return res.status(400).json({ error: "Email already exists" });
+        }
         console.log(error.message)
         return res.status(500).json({error:error})
     }
@@ -132,7 +157,7 @@ router.get('/posts/:search', async (req, res) => {
 
 
 router.get('/',(req,res)=>{
-    res.sendFile('./frontend/index.html')
+    res.sendFile('index.html')
 })
 
 module.exports = router;
