@@ -82,8 +82,8 @@ router.post('/gaians', async (req,res)=>{
         return res.status(200).json(gaian.rows[0]);
     } catch (error) {
           // Check if the error is a unique constraint violation
-        if (error.code === '23505' && error.constraint === 'gaian_email_key') {
-            return res.status(400).json({ error: "Email already exists" });
+        if (error.code === '23505' && error.constraint === 'gaian_username_key') {
+            return res.status(400).json({ error: "Username already exists" });
         }
         console.log(error.message)
         return res.status(500).json({error:error})

@@ -18,10 +18,11 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form>
+            <form id="create-gaian-form">
               <div class="mb-3">
                 <label for="gaianName" class="form-label">Gaian Username</label>
                 <input type="text" class="form-control" id="gaianName">
+                <label id="create-gaian-error"></label>
               </div>
     
               <button type="submit" class="btn btn-primary">Create Gaian</button>
@@ -36,19 +37,25 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="createGaianModalLabel">Create Gaian</h5>
+            <h5 class="modal-title" id="createGaianModalLabel">Create Post</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form>
+            <form id="create-post-form">
               <div class="mb-3">
                 <label for="postGaianUsername" class="form-label">Gaian Username</label>
                 <input type="text" class="form-control" id="postGaianUsername">
               </div>
 
               <div class="mb-3">
+                <label for="postTitle" class="form-label">Title</label>
+                <input type="text" class="form-control" id="postTitle">
+              </div>
+
+              <div class="mb-3">
                 <label for="postBody" class="form-label">Post Body</label>
                 <textarea class="form-control" id="postBody" rows="3"></textarea>
+                <label id="create-post-error"></label>
               </div>
     
               <button type="submit" class="btn btn-primary">Create Post</button>
@@ -78,6 +85,17 @@
             </ul>
             <form class="d-flex" role="search">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <div class="dropdown">
+                <a class="btn btn-secondary dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Dropdown link
+                </a>
+              
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">Action</a></li>
+                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </div>
               <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
           </div>
