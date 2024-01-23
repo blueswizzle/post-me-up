@@ -1,7 +1,10 @@
 const createGaianForm = document.getElementById('create-gaian-form')
 const createPostForm = document.getElementById('create-post-form')
 const homePage = document.getElementById('home-page')
+const postBoard = document.getElementById('post-board')
 
+
+document.addEventListener('DOMContentLoaded', populatePostBoard);
 
 createGaianForm.addEventListener('submit', async (e)=>{
     e.preventDefault()
@@ -92,10 +95,67 @@ async function getAllPosts(){
 
         if(response.ok){
             console.dir(data.posts)
+            return data.posts
         }else{
             console.log('Something went wrong', response.error)
         }
     } catch (error) {
         console.log("Error is ", error)
     }
+}
+
+async function populatePostBoard() {
+    let posts = await getAllPosts(); // Wait for the promise to resolve
+    console.log("POSTS are ", posts);
+
+    if (posts.length > 0) {
+        for (const post of posts) {
+
+            // Convert the ISO date string to a Date object
+            const postDate = new Date(post.post_date);
+
+            // Format the date
+            const formattedDate = new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }).format(postDate);
+
+            let time = post.post_time
+            const { hours, minutes,ampm } = convertTimeToHoursMinutes(time);
+
+            // Use template literals to create HTML
+            const postHTML = `
+                <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-4 w-50 post" id=${post.post_id}>
+                    <p class="fw-bold">@${post.username}</p>
+                    <p class="overflow-hidden">${post.title}</p>
+                    <p class="fs-6 fw-lighter">${formattedDate} <span>${hours}:${minutes} ${ampm}</span></p>
+                </div>
+            `;
+
+            // Append the HTML string to the postBoard
+            postBoard.innerHTML += postHTML;
+        }
+    }else{
+        const postHTML = `
+            <h1>No Posts Available </h1>
+
+         `;
+
+        postBoard.innerHTML += postHTML
+    }
+}
+
+
+function convertTimeToHoursMinutes(timeString) {
+    // Parse the time string
+    const time = new Date(`1970-01-01T${timeString}Z`);
+
+    // Extract hours, minutes, and AM/PM
+    const hours = (time.getUTCHours() + 24) % 12 || 12; // Convert 0 to 12
+    const minutes = time.getUTCMinutes().toString().padStart(2, '0');
+    const ampm = time.getUTCHours() < 12 ? 'AM' : 'PM';
+  
+    // Return the result
+    return { hours, minutes, ampm };
 }

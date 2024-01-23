@@ -19,12 +19,12 @@ router.get('/gaians', async(req,res)=>{
 })
 
 // GET A SPECIFIC GAIAN
-router.get('/gaians/:username', async (req,res)=>{
+router.get('/gaians/:id', async (req,res)=>{
     try {
-        const username= req.params.username
+        const id= req.params.id
 
         const gaian = await pool.query(
-            'SELECT * FROM gaian WHERE gaian.username= $1', [username]
+            'SELECT * FROM gaian WHERE gaian.id= $1', [id]
         )
         return res.status(200).json(gaian.rows[0])
     } catch (error) {
@@ -36,31 +36,12 @@ router.get('/gaians/:username', async (req,res)=>{
 })
 
 
-router.post('/gaians/login', async (req, res) => {
-    try {
-        const data = req.body;
-        console.log("DATA is ", data)
-        const gaian = await pool.query(
-            'SELECT * FROM gaian WHERE gaian.email = $1 AND gaian.pass = $2',
-            [data.email,data.pass]
-        );
-
-        if (gaian.rows.length === 0) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        return res.status(200).json({ user: gaian.rows });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: error });
-    }
-});
-
 // SELECT ALL POSTS FROM DATABASE
 router.get('/posts', async (req,res)=>{
     try {
         const allPosts = await pool.query(
-            'SELECT * FROM post'
+            // 'SELECT * FROM post ORDER BY post.post_date DESC, post.post_time DESC'
+            'SELECT gaian.id AS gaian_id, gaian.username, post.id AS post_id, post.title,post.content,post.post_date,post.post_time FROM gaian JOIN post ON gaian.id= post.gaian_id ORDER BY post.post_date DESC, post.post_time DESC;'
         )
         return res.status(200).json({message:'Got all posts', posts:allPosts.rows})
     } catch (error) {

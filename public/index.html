@@ -21,7 +21,7 @@
             <form id="create-gaian-form">
               <div class="mb-3">
                 <label for="gaianName" class="form-label">Gaian Username</label>
-                <input type="text" class="form-control" id="gaianName">
+                <input type="text" class="form-control" id="gaianName" required>
                 <label id="create-gaian-error"></label>
               </div>
     
@@ -44,17 +44,17 @@
             <form id="create-post-form">
               <div class="mb-3">
                 <label for="postGaianUsername" class="form-label">Gaian Username</label>
-                <input type="text" class="form-control" id="postGaianUsername">
+                <input type="text" class="form-control" id="postGaianUsername" required>
               </div>
 
               <div class="mb-3">
                 <label for="postTitle" class="form-label">Title</label>
-                <input type="text" class="form-control" id="postTitle">
+                <input type="text" class="form-control" id="postTitle" required>
               </div>
 
               <div class="mb-3">
                 <label for="postBody" class="form-label">Post Body</label>
-                <textarea class="form-control" id="postBody" rows="3"></textarea>
+                <textarea class="form-control" id="postBody" rows="3" required></textarea>
                 <label id="create-post-error"></label>
               </div>
     
@@ -64,6 +64,26 @@
         </div>
       </div>
     </div>
+
+
+        <!-- Modal for Viewing Gaians -->
+    <div class="modal fade" id="viewGaiansModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Viewing Gaians</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
@@ -82,20 +102,12 @@
               <li class="nav-item">
                 <a class="nav-link" id="create-post" href="#" data-bs-toggle="modal" data-bs-target="#createPostModal">Create Post</a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" id="view-gaians" href="#" data-bs-toggle="modal" data-bs-target="#viewGaiansModal">View Gaians</a>
+              </li>
             </ul>
             <form class="d-flex" role="search">
               <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-              <div class="dropdown">
-                <a class="btn btn-secondary dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Dropdown link
-                </a>
-              
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">Action</a></li>
-                  <li><a class="dropdown-item" href="#">Another action</a></li>
-                  <li><a class="dropdown-item" href="#">Something else here</a></li>
-                </ul>
-              </div>
               <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
           </div>
@@ -105,18 +117,8 @@
     <main class="container mt-5">
 
       
-      <div class="container-lg d-md-flex justifiy-content-center">
-        <!-- <div class="container-sm d-sm-flex flex-column border border-secondary-subtle w-50 post">
-            <p class="fw-bold">@topgun97</p>
-            <p class="overflow-hidden">This is the first post!</p>
-            <p class="fs-6 fw-lighter">11-24-24  <span>2:30 PM</span> </p>
-        </div> -->
+      <div id="post-board" class="container-lg d-md-flex flex-column justifiy-content-center align-items-center">
 
-        <h1 class="text-center">No posts available</h1>
-        
-    
-       
-        
       </div>
     </main>
 
