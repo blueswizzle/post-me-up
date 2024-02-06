@@ -8,7 +8,7 @@ const pool = require('./db');
 router.get('/gaians', async(req,res)=>{
     try {
         const AllGaians = await pool.query(
-            "SELECT * FROM gaian"
+            "SELECT g.*, COUNT(p) AS total_posts FROM gaian g LEFT JOIN post p ON g.id = p.gaian_id GROUP BY g.id ORDER BY g.username"
         );
         console.log("Gaians are", AllGaians.rows)
         return res.status(200).json(AllGaians.rows)
