@@ -21,3 +21,8 @@
 #view-gaians:hover{
     cursor: pointer;
 }
+
+.modal-body {
+    max-height: 400px; /* Set a maximum height for the modal body */
+    overflow-y: auto; /* Enable vertical scrollbar when content exceeds the height */
+  }

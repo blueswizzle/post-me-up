@@ -2,9 +2,20 @@ const createGaianForm = document.getElementById('create-gaian-form')
 const createPostForm = document.getElementById('create-post-form')
 const homePage = document.getElementById('home-page')
 const postBoard = document.getElementById('post-board')
+const viewGaiansModal = document.getElementById('view-gaians-modal-body')
 
+const viewGaiansLink = document.getElementById('view-gaians')
+const searchButton = document.getElementById('search-button')
 
 document.addEventListener('DOMContentLoaded', populatePostBoard);
+
+viewGaiansLink.addEventListener('click', async function (event) {
+    event.preventDefault(); 
+    
+    await populateGaianModal();
+ 
+  
+  });
 
 createGaianForm.addEventListener('submit', async (e)=>{
     e.preventDefault()
@@ -82,6 +93,9 @@ createPostForm.addEventListener('submit', async(e) =>{
 
 
 homePage.addEventListener('click', getAllPosts)
+
+
+
 async function getAllPosts(){
     try {
         const response = await fetch('http://localhost:4000/posts', {
@@ -146,6 +160,43 @@ async function populatePostBoard() {
     }
 }
 
+
+async function getAllGaians(){
+    try {
+        const response = await fetch('http://localhost:4000/gaians',{
+            method:'GET',
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+
+        const data = await response.json()
+
+        if(response.ok){
+            console.dir(data)
+            return data
+        }else{
+            console.log('Something went wrong', response.error)
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function populateGaianModal(){
+    let gaians = await getAllGaians()
+    if(gaians> 0){
+        for(const gaian in gaians){
+            const gaianHtml = `
+                <div class="container-sm d-sm-flex flex-column border align-items-center border-secondary-subtle my-4 w-50 post" id=${gaian.id}>
+                    <p class="fw-bold text-center">@${gaian.username}</p>
+                </div>
+            `;
+
+            viewGaiansModal.innerHTML += gaianHtml;
+        }
+    }
+}
 
 function convertTimeToHoursMinutes(timeString) {
     // Parse the time string
