@@ -27,48 +27,77 @@ homePage.addEventListener('click', async () => {
 
 viewGaiansLink.addEventListener('click', async function (event) {
     event.preventDefault();
-    mainContainer.innerHTML = ''
+    mainContainer.innerHTML = '';
 
     mainContainer.innerHTML += `
     <h1 class="text-center">Viewing Gaians</h1>
         <div class="dropdown my-4">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Sort by: <span>Username </span>
+                Sort by: <span id="sort-by-text">A-Z</span>
             </button>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Username</a></li>
-                <li><a class="dropdown-item" href="#">Post Count</a></li>
+                <li><a class="dropdown-item" href="#" data-sortby="a-z">A-Z</a></li>
+                <li><a class="dropdown-item" href="#" data-sortby="z-a">Z-A</a></li>
+                <li><a class="dropdown-item" href="#" data-sortby="posts-asc">Post ASC</a></li>
+                <li><a class="dropdown-item" href="#" data-sortby="posts-desc">Post DESC</a></li>
             </ul>
         </div>
     <div class="container">
-
         <div class="row row-cols-3"  id="gaian-board">
-
         </div>
-       
     </div> 
-    `
-    const board = document.getElementById('gaian-board')
+    `;
+    const sortByText = document.getElementById('sort-by-text')
+    const board = document.getElementById('gaian-board');
 
     let gaians = await getAllGaians();
 
-    if (gaians.length > 0) {
-        for (i = 0; i < gaians.length; i++) {
-
+    const renderGaians = () => {
+        board.innerHTML = '';
+        gaians.forEach(gaian => {
             const element = `
-             <div class="col">
-                <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-2 post" id="${gaians[i].id}">
-                    <p class="fw-bold text-center text-truncate">@${gaians[i].username}</p>
-                    <p class="fw-bold text-center text-truncate">Posts: ${gaians[i].total_posts}</p>
+                <div class="col">
+                    <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-2 post" id="${gaian.id}">
+                        <p class="fw-bold text-center text-truncate">@${gaian.username}</p>
+                        <p class="fw-bold text-center text-truncate">Posts: ${gaian.total_posts}</p>
+                    </div>
                 </div>
-  
-            </div>
-            `
-            board.innerHTML += element
-        }
-    }
+            `;
+            board.innerHTML += element;
+        });
+    };
 
+    // Initial render
+    renderGaians();
+
+    // Sorting function
+    const sortGaians = (sortBy) => {
+        if (sortBy === 'a-z') {
+            gaians.sort((a, b) => a.username.localeCompare(b.username));
+            sortByText.textContent = "A-Z"
+        }else if (sortBy === 'z-a') {
+            gaians.sort((a,b) => b.username.localeCompare(a.username))
+            sortByText.textContent = "Z-A"
+        }else if (sortBy === 'posts-asc') {
+            gaians.sort((a, b) => a.total_posts - b.total_posts);
+            sortByText.textContent = "Post asc"
+        }else if (sortBy === 'posts-desc'){
+            gaians.sort((a,b) => b.total_posts - a.total_posts);
+            sortByText.textContent = "Post Desc"
+        }
+        // Re-render the board with sorted data
+        renderGaians();
+    };
+
+    // Event listener for dropdown items
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const sortBy = item.getAttribute('data-sortby');
+            sortGaians(sortBy);
+        });
+    });
 });
+
 
 createGaianForm.addEventListener('submit', async (e) => {
     e.preventDefault()
