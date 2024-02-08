@@ -3,15 +3,27 @@ const createPostForm = document.getElementById('create-post-form')
 
 
 const mainContainer = document.getElementById('main-container')
-const homePage = document.getElementById('home-page')
+const homePage = document.getElementById('home-page-link')
+const postsPage = document.getElementById('posts-link')
 
+homePage.addEventListener('click', ()=>{
+    mainContainer.innerHTML = ''
+    const child = `
+      <h1 class="text-center">Welcome to PostMeUp</h1>
+      <h2 class="text-center">You're essentially an admin that can create gaians (users), posts, update, and delete them</h2>
+      <p class="text-center my-5">Use the nav links to create gaians,posts, and to view them. Clicking on a post
+        will show the full post body. There you can update and/or delete the post. Same applies for gaians.
+      </p> 
+    `
+    mainContainer.innerHTML += child;
+})
 
 const viewGaiansLink = document.getElementById('view-gaians')
 const searchButton = document.getElementById('search-button')
 
 document.addEventListener('DOMContentLoaded', populatePostBoard);
 
-homePage.addEventListener('click', async () => {
+postsPage.addEventListener('click', async () => {
     mainContainer.innerHTML = ''
     const child = document.createElement('div');
 
@@ -174,7 +186,7 @@ createPostForm.addEventListener('submit', async (e) => {
 })
 
 
-homePage.addEventListener('click', getAllPosts)
+postsPage.addEventListener('click', getAllPosts)
 
 
 
