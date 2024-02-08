@@ -69,7 +69,7 @@ viewGaiansLink.addEventListener('click', async function (event) {
         gaians.forEach(gaian => {
             const element = `
                 <div class="col">
-                    <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-2 post" id="${gaian.id}">
+                    <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-2 gaian" id="${gaian.id}">
                         <p class="fw-bold text-center text-truncate">@${gaian.username}</p>
                         <p class="fw-bold text-center text-truncate">Posts: ${gaian.total_posts}</p>
                     </div>
@@ -239,9 +239,18 @@ async function populatePostBoard(postBoard) {
                 </div>
             `;
 
+           
+
             // Append the HTML string to the postBoard
             postBoard.innerHTML += postHTML;
         }
+        document.querySelectorAll('.post').forEach(box =>{
+            box.addEventListener('click', ()=>{
+                showPostDetails(box.id)
+            })
+        })
+        
+        
     } else {
         const postHTML = `
             <h1>No Posts Available </h1>
@@ -251,6 +260,45 @@ async function populatePostBoard(postBoard) {
         postBoard.innerHTML += postHTML
     }
 }
+
+async function showPostDetails(id) {
+    let postID = id;
+    try {
+        const post = await getPostDetails(postID);
+
+        if (post) {
+            mainContainer.innerHTML = ''
+            
+        } else {
+            console.log("Failed to get post details");
+            
+        }
+    } catch (error) {
+        console.log("Error:", error);
+    }
+}
+
+async function getPostDetails(postID){
+    try {
+        const response = await fetch(`http://localhost:4000/posts/${postID}`,{
+            method: 'GET',
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+
+        const data = await response.json()
+
+        if(response.ok){
+            return data
+        }else{
+            console.log('Something went wrong', response.error)
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 async function getAllGaians() {
     try {
         const response = await fetch('http://localhost:4000/gaians', {
