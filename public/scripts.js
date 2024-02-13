@@ -1,51 +1,39 @@
 const createGaianForm = document.getElementById('create-gaian-form')
 const createPostForm = document.getElementById('create-post-form')
-const homePage = document.getElementById('home-page')
-const postBoard = document.getElementById('post-board')
-const viewGaiansModal = document.getElementById('view-gaians-modal-body')
+const mainContainer = document.getElementById('main-container')
 
-const viewGaiansLink = document.getElementById('view-gaians')
-const searchButton = document.getElementById('search-button')
 
-document.addEventListener('DOMContentLoaded', populatePostBoard);
 
-viewGaiansLink.addEventListener('click', async function (event) {
-    event.preventDefault(); 
-    
-    await populateGaianModal();
- 
-  
-  });
 
-createGaianForm.addEventListener('submit', async (e)=>{
+createGaianForm.addEventListener('submit', async (e) => {
     e.preventDefault()
     console.log("Username is ", createGaianForm.elements['gaianName'].value)
     const formData = {
         'username': createGaianForm.elements['gaianName'].value
     }
-    
+
     try {
         let message = document.getElementById('create-gaian-error')
-        const response = await fetch('http://localhost:4000/gaians',{
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json'
+        const response = await fetch('http://localhost:4000/gaians', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(formData)
         })
 
         const data = await response.json()
-        if(response.ok){
+        if (response.ok) {
             console.log("Gaian created successfully ", data)
             message.classList.remove('text-danger')
             message.classList.add('text-success')
             message.innerText = 'Gaian created!'
-        }else if(response.status == 400){
+        } else if (response.status == 400) {
             console.log(data.error)
             message.classList.remove('text-success')
             message.classList.add('text-danger')
             message.innerText = 'Username already exists!'
-        }else{
+        } else {
             console.log("Something went wrong", response.error)
         }
     } catch (error) {
@@ -53,7 +41,7 @@ createGaianForm.addEventListener('submit', async (e)=>{
     }
 })
 
-createPostForm.addEventListener('submit', async(e) =>{
+createPostForm.addEventListener('submit', async (e) => {
     e.preventDefault()
     console.log("clicked")
     try {
@@ -64,26 +52,26 @@ createPostForm.addEventListener('submit', async(e) =>{
             content: createPostForm.elements['postBody'].value
         }
         const response = await fetch('http://localhost:4000/gaian/post', {
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json'
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(formData)
         });
 
         const data = await response.json()
 
-        if(response.ok){
+        if (response.ok) {
             console.log(data)
             message.classList.remove('text-danger')
             message.classList.add('text-success')
             message.innerText = 'Post created!'
-        }else if(response.status === 404){
+        } else if (response.status === 404) {
             console.log(data.error)
             message.classList.remove('text-success')
             message.classList.add('text-danger')
             message.innerText = 'Username not found!'
-        }else{
+        } else {
             console.log('Something went wrong', response.error)
         }
     } catch (error) {
@@ -92,25 +80,24 @@ createPostForm.addEventListener('submit', async(e) =>{
 })
 
 
-homePage.addEventListener('click', getAllPosts)
 
 
 
-async function getAllPosts(){
+
+async function getAllPosts() {
     try {
         const response = await fetch('http://localhost:4000/posts', {
-            method:'GET',
-            headers:{
-                'Content-Type':'application/json'
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
             },
         })
 
         const data = await response.json()
 
-        if(response.ok){
-            console.dir(data.posts)
+        if (response.ok) {
             return data.posts
-        }else{
+        } else {
             console.log('Something went wrong', response.error)
         }
     } catch (error) {
@@ -118,9 +105,8 @@ async function getAllPosts(){
     }
 }
 
-async function populatePostBoard() {
+async function populatePostBoard(postBoard) {
     let posts = await getAllPosts(); // Wait for the promise to resolve
-    console.log("POSTS are ", posts);
 
     if (posts.length > 0) {
         for (const post of posts) {
@@ -136,21 +122,33 @@ async function populatePostBoard() {
             }).format(postDate);
 
             let time = post.post_time
-            const { hours, minutes,ampm } = convertTimeToHoursMinutes(time);
+            const { hours, minutes, ampm } = convertTimeToHoursMinutes(time);
 
-            // Use template literals to create HTML
+           // Use template literals to create HTML
             const postHTML = `
+            <a href="#post/${post.post_id}" class="text-decoration-none link-light">
                 <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-4 w-50 post" id=${post.post_id}>
                     <p class="fw-bold">@${post.username}</p>
                     <p class="overflow-hidden">${post.title}</p>
                     <p class="fs-6 fw-lighter">${formattedDate} <span>${hours}:${minutes} ${ampm}</span></p>
                 </div>
+            </a>
             `;
+
+
+           
 
             // Append the HTML string to the postBoard
             postBoard.innerHTML += postHTML;
         }
-    }else{
+        document.querySelectorAll('.post').forEach(box =>{
+            box.addEventListener('click', ()=>{
+                showPostDetailsPage(box.id)
+            })
+        })
+        
+        
+    } else {
         const postHTML = `
             <h1>No Posts Available </h1>
 
@@ -161,21 +159,21 @@ async function populatePostBoard() {
 }
 
 
-async function getAllGaians(){
+
+async function getAllGaians() {
     try {
-        const response = await fetch('http://localhost:4000/gaians',{
-            method:'GET',
-            headers:{
-                'Content-Type':'application/json'
+        const response = await fetch('http://localhost:4000/gaians', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
             }
         })
 
         const data = await response.json()
 
-        if(response.ok){
-            console.dir(data)
+        if (response.ok) {
             return data
-        }else{
+        } else {
             console.log('Something went wrong', response.error)
         }
     } catch (error) {
@@ -183,20 +181,6 @@ async function getAllGaians(){
     }
 }
 
-async function populateGaianModal(){
-    let gaians = await getAllGaians()
-    if(gaians> 0){
-        for(const gaian in gaians){
-            const gaianHtml = `
-                <div class="container-sm d-sm-flex flex-column border align-items-center border-secondary-subtle my-4 w-50 post" id=${gaian.id}>
-                    <p class="fw-bold text-center">@${gaian.username}</p>
-                </div>
-            `;
-
-            viewGaiansModal.innerHTML += gaianHtml;
-        }
-    }
-}
 
 function convertTimeToHoursMinutes(timeString) {
     // Parse the time string
@@ -206,7 +190,227 @@ function convertTimeToHoursMinutes(timeString) {
     const hours = (time.getUTCHours() + 24) % 12 || 12; // Convert 0 to 12
     const minutes = time.getUTCMinutes().toString().padStart(2, '0');
     const ampm = time.getUTCHours() < 12 ? 'AM' : 'PM';
-  
+
     // Return the result
     return { hours, minutes, ampm };
 }
+
+
+function showHomePage(){
+    mainContainer.innerHTML = ''
+    const child = `
+      <h1 class="text-center">Welcome to PostMeUp</h1>
+      <h2 class="text-center">You're essentially an admin that can create gaians (users), posts, update, and delete them</h2>
+      <p class="text-center my-5">Use the nav links to create gaians,posts, and to view them. Clicking on a post
+        will show the full post body. There you can update and/or delete the post. Same applies for gaians.
+      </p> 
+    `
+    mainContainer.innerHTML += child;
+}
+
+async function showPostsPage(){
+    mainContainer.innerHTML = ''
+    const child = document.createElement('div');
+
+    child.innerHTML = `
+        <h1 class="text-center">Viewing Posts</h1>
+        <div id="post-board" class="container-lg d-md-flex flex-column justifiy-content-center align-items-center">
+    `
+    mainContainer.appendChild(child)
+
+    await populatePostBoard(child);
+}
+
+async function showGaiansPage(){
+    mainContainer.innerHTML = '';
+
+    mainContainer.innerHTML += `
+    <h1 class="text-center">Viewing Gaians</h1>
+        <div class="dropdown my-4">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Sort by: <span id="sort-by-text">A-Z</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" data-sortby="a-z">A-Z</a></li>
+                <li><a class="dropdown-item" href="#" data-sortby="z-a">Z-A</a></li>
+                <li><a class="dropdown-item" href="#" data-sortby="posts-asc">Post ASC</a></li>
+                <li><a class="dropdown-item" href="#" data-sortby="posts-desc">Post DESC</a></li>
+            </ul>
+        </div>
+    <div class="container">
+        <div class="row row-cols-3"  id="gaian-board">
+        </div>
+    </div> 
+    `;
+    const sortByText = document.getElementById('sort-by-text')
+    const board = document.getElementById('gaian-board');
+
+    let gaians = await getAllGaians();
+
+    const renderGaians = () => {
+        board.innerHTML = '';
+        gaians.forEach(gaian => {
+            const element = `
+                <div class="col">
+                    <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-2 gaian" id="${gaian.id}">
+                        <p class="fw-bold text-center text-truncate">@${gaian.username}</p>
+                        <p class="fw-bold text-center text-truncate">Posts: ${gaian.total_posts}</p>
+                    </div>
+                </div>
+            `;
+            board.innerHTML += element;
+        });
+    };
+
+    
+    renderGaians();
+
+    
+    const sortGaians = (sortBy) => {
+        if (sortBy === 'a-z') {
+            gaians.sort((a, b) => a.username.localeCompare(b.username));
+            sortByText.textContent = "A-Z"
+        }else if (sortBy === 'z-a') {
+            gaians.sort((a,b) => b.username.localeCompare(a.username))
+            sortByText.textContent = "Z-A"
+        }else if (sortBy === 'posts-asc') {
+            gaians.sort((a, b) => a.total_posts - b.total_posts);
+            sortByText.textContent = "Post asc"
+        }else if (sortBy === 'posts-desc'){
+            gaians.sort((a,b) => b.total_posts - a.total_posts);
+            sortByText.textContent = "Post Desc"
+        }
+        
+        renderGaians();
+    };
+
+    
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault()
+            const sortBy = item.getAttribute('data-sortby');
+            sortGaians(sortBy);
+        });
+    });
+}
+
+async function showPostDetailsPage(id) {
+    let postID = id;
+    try {
+        const post = await getPostDetails(postID);
+
+        if (post) {
+            
+            const postDate = new Date(post.post_date);
+
+            
+            const formattedDate = new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }).format(postDate);
+
+            let time = post.post_time
+            const { hours, minutes, ampm } = convertTimeToHoursMinutes(time);
+            mainContainer.innerHTML = ''
+            
+            const child = `
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="card mt-5">
+                            <div class="card-body">
+                                <h5 class="card-title post-details">${post.title}</h5>
+                                <p class="card-text"> @${post.username}</p>
+                                <p class="card-text ">${formattedDate}</p>
+                                <p class="card-text">${hours}:${minutes} ${ampm}</p>
+                                <hr>
+                                <p class="card-text post-details">${post.content} </p>
+                                <div class="text-center mt-4" id="post-button-options">
+                                    <button type="button" id="edit-post" class="btn btn-primary mr-2">Edit</button>
+                                    <button type="button" id="delete-post" class="btn btn-danger">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `
+            mainContainer.innerHTML += child;
+            const editPost = document.getElementById('edit-post')
+            editPost.addEventListener('click', editPostDetails)
+           
+            
+            
+        } else {
+            console.log("Failed to get post details");
+            
+        }
+    } catch (error) {
+        console.log("Error:", error);
+    }
+}
+
+
+function editPostDetails(){
+    let items = document.querySelectorAll('.post-details')
+    let buttons = document.querySelectorAll('#post-button-options button')
+    console.log(buttons)
+    buttons.forEach(button =>{
+        button.style.display = 'none'
+    })
+    items.forEach(item =>{
+        item.contentEditable = true;
+        item.style.border = '1px solid #007bff';
+    })
+}
+
+async function getPostDetails(postID){
+    try {
+        const response = await fetch(`http://localhost:4000/posts/${postID}`,{
+            method: 'GET',
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+
+        const data = await response.json()
+
+        if(response.ok){
+            return data
+        }else{
+            console.log('Something went wrong', response.error)
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+function initialPage() {
+    const hash = window.location.hash;
+  
+    if (hash.startsWith('#post/')) {
+      
+      const postId = hash.substring(6); 
+      showPostDetailsPage(postId);
+    } else {
+      switch (hash) {
+        case '#posts':
+          showPostsPage();
+          break;
+        case '#gaians':
+          showGaiansPage();
+          break;
+        default:
+          showHomePage();
+          break;
+      }
+    }
+  }
+  
+
+  
+  window.addEventListener('hashchange', initialPage);
+
+  
+  initialPage();

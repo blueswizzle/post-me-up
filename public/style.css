@@ -6,6 +6,14 @@
     cursor: pointer;
 }
 
+.gaian{
+    transition: 0.2s;
+}
+.gaian:hover{
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
 #create-gaian:hover{
     cursor: pointer;
 }
@@ -14,6 +22,9 @@
     cursor: pointer;
 }
 
+#posts-link:hover{
+    cursor: pointer;
+}
 #create-post:hover{
     cursor: pointer;
 }
@@ -21,8 +32,3 @@
 #view-gaians:hover{
     cursor: pointer;
 }
-
-.modal-body {
-    max-height: 400px; /* Set a maximum height for the modal body */
-    overflow-y: auto; /* Enable vertical scrollbar when content exceeds the height */
-  }

@@ -8,7 +8,7 @@ const pool = require('./db');
 router.get('/gaians', async(req,res)=>{
     try {
         const AllGaians = await pool.query(
-            "SELECT * FROM gaian"
+            "SELECT g.*, COUNT(p) AS total_posts FROM gaian g LEFT JOIN post p ON g.id = p.gaian_id GROUP BY g.id ORDER BY g.username"
         );
         console.log("Gaians are", AllGaians.rows)
         return res.status(200).json(AllGaians.rows)
@@ -40,12 +40,29 @@ router.get('/gaians/:id', async (req,res)=>{
 router.get('/posts', async (req,res)=>{
     try {
         const allPosts = await pool.query(
-            // 'SELECT * FROM post ORDER BY post.post_date DESC, post.post_time DESC'
             'SELECT gaian.id AS gaian_id, gaian.username, post.id AS post_id, post.title,post.content,post.post_date,post.post_time FROM gaian JOIN post ON gaian.id= post.gaian_id ORDER BY post.post_date DESC, post.post_time DESC;'
         )
         return res.status(200).json({message:'Got all posts', posts:allPosts.rows})
     } catch (error) {
         console.log(error.message)
+    }
+})
+
+
+// GET A SPECIFIC POST BY ID
+
+router.get('/posts/:id', async (req,res)=>{
+    const id = req.params.id
+    try {
+        const postDetails = await pool.query(
+            'SELECT p.*, g.username FROM post p JOIN gaian g ON g.id = p.gaian_id WHERE p.id = $1',
+            [id]
+        );
+
+        return res.status(200).json(postDetails.rows[0])
+    } catch (error) {
+        console.log(error.message)
+        return res.status(500).json({error:error})
     }
 })
 
