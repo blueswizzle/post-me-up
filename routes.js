@@ -26,7 +26,11 @@ router.get('/gaians/:id', async (req,res)=>{
         const gaian = await pool.query(
             'SELECT * FROM gaian WHERE gaian.id= $1', [id]
         )
-        return res.status(200).json(gaian.rows[0])
+        if (gaian.rows.length ===1) {
+            return res.status(200).json(gaian.rows[0])
+        } else {
+            return res.status(404).json({error:"Gaian not found"})
+        }
     } catch (error) {
         console.log(error.message)
         return res.status(500).json(error)
@@ -58,8 +62,12 @@ router.get('/posts/:id', async (req,res)=>{
             'SELECT p.*, g.username FROM post p JOIN gaian g ON g.id = p.gaian_id WHERE p.id = $1',
             [id]
         );
-
-        return res.status(200).json(postDetails.rows[0])
+        if(postDetails.rows.length === 1){
+            return res.status(200).json(postDetails.rows[0])
+        }else{
+            return res.status(404).json({error:"Post not found"})
+        }
+        
     } catch (error) {
         console.log(error.message)
         return res.status(500).json({error:error})
@@ -97,7 +105,7 @@ router.post('/gaian/post', async (req,res)=>{
         const gaian = await pool.query(
             "SELECT * FROM gaian WHERE gaian.username = $1", [username]
         )
-        if(gaian.rows.length ==0){
+        if(gaian.rows.length ===0){
             return res.status(404).json({error:"Gaian not found"})
         }
 
@@ -123,7 +131,7 @@ router.get('/gaian/:id/posts',async (req,res)=>{
         );
 
         if(gaianPosts.rows.length == 0){
-            return res.status(404).json({message: `No posts from gaian with id ${id}`})
+            return res.status(404).json({error: `No posts from gaian with id ${id}`})
         }
         return res.status(200).json({message:'Got all posts from gaian', posts: gaianPosts.rows})
 
@@ -153,6 +161,25 @@ router.get('/posts/:search', async (req, res) => {
 });
 
 
+
+// UPDATE POST BY ID WITH NEW DATA
+router.patch('/posts/:id', async (req,res) =>{
+    try {
+        const id = req.params.id
+        const {title,content} = req.body
+        const response = await pool.query(
+            "UPDATE post SET title = $1, content = $2 WHERE id = $3 RETURNING *",[title,content,id]
+        )
+        if (response.rowCount === 1) {
+            res.status(200).json({ message: 'Post updated successfully', post: response.rows[0] });
+        } else {
+            res.status(404).json({ error: 'Post not found' });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: error.message });
+    }
+})
 
 router.get('/',(req,res)=>{
     res.sendFile('index.html')
