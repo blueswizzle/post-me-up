@@ -59,7 +59,7 @@ router.get('/posts/:id', async (req,res)=>{
             [id]
         );
 
-        return res.status(200).json({'Post': postDetails.rows[0]})
+        return res.status(200).json(postDetails.rows[0])
     } catch (error) {
         console.log(error.message)
         return res.status(500).json({error:error})
