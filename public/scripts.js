@@ -106,7 +106,7 @@ async function getAllPosts() {
 }
 
 async function populatePostBoard(postBoard) {
-    let posts = await getAllPosts(); // Wait for the promise to resolve
+    let posts = await getAllPosts();
 
     if (posts.length > 0) {
         for (const post of posts) {
@@ -353,15 +353,70 @@ async function showPostDetailsPage(id) {
 
 
 function editPostDetails(){
-    let items = document.querySelectorAll('.post-details')
+    let editableItems = document.querySelectorAll('.post-details')
     let buttons = document.querySelectorAll('#post-button-options button')
-    console.log(buttons)
     buttons.forEach(button =>{
         button.style.display = 'none'
     })
-    items.forEach(item =>{
+    
+    const editOptions = `
+    <button type="button" id="save-edit" class="btn btn-primary mr-2">Save</button>
+    <button type="button" id="cancel-edit" class="btn btn-danger">Cancel</button>
+    `
+
+    
+    document.getElementById('post-button-options').innerHTML += editOptions
+  
+    
+    editableItems.forEach((item, index) =>{
         item.contentEditable = true;
         item.style.border = '1px solid #007bff';
+        if(index == 0){
+            const textLimit = document.createElement('span');
+            textLimit.style.border = '1px solid red';
+            textLimit.innerText = `${item.textContent.length}/100`;
+            item.insertAdjacentElement('afterend', textLimit);
+
+            item.addEventListener('beforeinput', (e) => {
+                const maxLength = 100; 
+                const currentLength = item.textContent.length;
+                if (currentLength >= maxLength && e.inputType !== 'deleteContentBackward') {
+                    e.preventDefault(); 
+                }
+                
+                textLimit.innerText = `${item.textContent.length}/100`;
+            });
+        }
+        
+    })
+
+   
+    document.getElementById('save-edit').addEventListener('click', async ()=>{
+        try {
+            const data = {
+                title:editableItems[0].innerText,
+                content:editableItems[1].innerText
+            }
+            const response = await fetch(`http://localhost:4000/posts/${window.location.hash.substring(6)}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body:JSON.stringify(data)
+            })
+            const r = await response.json();
+            if(response.ok){
+                showPostDetailsPage(window.location.hash.substring(6));
+            }else{
+                console.log(r)
+            } 
+        } catch (error) {
+            alert(error.error)
+        }
+    })
+
+    document.getElementById('cancel-edit').addEventListener('click', ()=>{
+        showPostDetailsPage(window.location.hash.substring(6));
     })
 }
 
@@ -386,7 +441,7 @@ async function getPostDetails(postID){
     }
 }
 
-function initialPage() {
+function selectPageView() {
     const hash = window.location.hash;
   
     if (hash.startsWith('#post/')) {
@@ -408,9 +463,6 @@ function initialPage() {
     }
   }
   
+  window.addEventListener('hashchange', selectPageView);
 
-  
-  window.addEventListener('hashchange', initialPage);
-
-  
-  initialPage();
+  selectPageView();

@@ -177,7 +177,10 @@ router.patch('/posts/:id', async (req,res) =>{
         }
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ error: error.message });
+        if(error.code === '22001'){
+            return res.status(400).json("Title is too long!")
+        }
+        return res.status(500).json( error.value);
     }
 })
 
