@@ -377,8 +377,7 @@ function editPostDetails(){
         if(index == 0){
             item.addEventListener('beforeinput', (e) => {
                 const maxLength = 100; 
-                const currentLength = item.textContent.length;
-                if (currentLength >= maxLength && e.inputType !== 'deleteContentBackward') {
+                if (item.textContent.length >= maxLength && e.inputType !== 'deleteContentBackward') {
                     e.preventDefault(); 
                 }
                 
