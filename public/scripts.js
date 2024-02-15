@@ -370,13 +370,11 @@ function editPostDetails(){
     
     editableItems.forEach((item, index) =>{
         item.contentEditable = true;
-        item.style.border = '1px solid #007bff';
+        item.classList.add('border')
+        item.classList.add('border-info')
+        item.classList.add('p-1')
+        item.classList.add('rounded')
         if(index == 0){
-            const textLimit = document.createElement('span');
-            textLimit.style.border = '1px solid red';
-            textLimit.innerText = `${item.textContent.length}/100`;
-            item.insertAdjacentElement('afterend', textLimit);
-
             item.addEventListener('beforeinput', (e) => {
                 const maxLength = 100; 
                 const currentLength = item.textContent.length;
@@ -384,7 +382,7 @@ function editPostDetails(){
                     e.preventDefault(); 
                 }
                 
-                textLimit.innerText = `${item.textContent.length}/100`;
+                
             });
         }
         
