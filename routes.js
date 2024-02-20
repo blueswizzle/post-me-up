@@ -113,7 +113,7 @@ router.post('/gaian/post', async (req,res)=>{
             "INSERT INTO post (gaian_id,title,content) VALUES($1,$2,$3) RETURNING *",
             [gaian.rows[0].id,title,content]
         )
-        return res.status(200).json({message: 'Created new post', post: newPost.rows })
+        return res.status(200).json({message: 'Created new post', post: newPost.rows[0] })
     } catch (error) {
         console.log(error.message)
         return res.status(500).json(error)
@@ -181,6 +181,24 @@ router.patch('/posts/:id', async (req,res) =>{
             return res.status(400).json("Title is too long!")
         }
         return res.status(500).json( error.value);
+    }
+})
+
+
+router.delete('/posts/:id', async (req,res)=>{
+    try {
+        const id = req.params.id
+        const deletePost = await pool.query(
+            "DELETE FROM post WHERE id = $1 RETURNING *",[id]
+        )
+        if(deletePost.rows.length === 1){
+            return res.status(200).json(deletePost.rows[0])
+        }else{
+            return res.status(404).json("Post not found!")
+        }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json(error)
     }
 })
 

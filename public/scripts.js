@@ -43,7 +43,6 @@ createGaianForm.addEventListener('submit', async (e) => {
 
 createPostForm.addEventListener('submit', async (e) => {
     e.preventDefault()
-    console.log("clicked")
     try {
         let message = document.getElementById('create-post-error')
         const formData = {
@@ -62,10 +61,11 @@ createPostForm.addEventListener('submit', async (e) => {
         const data = await response.json()
 
         if (response.ok) {
-            console.log(data)
+            console.log(data.post.id)
             message.classList.remove('text-danger')
             message.classList.add('text-success')
             message.innerText = 'Post created!'
+            window.location.hash = `#post/${data.post.id}`
         } else if (response.status === 404) {
             console.log(data.error)
             message.classList.remove('text-success')
@@ -150,7 +150,7 @@ async function populatePostBoard(postBoard) {
         
     } else {
         const postHTML = `
-            <h1>No Posts Available </h1>
+            <h1 class="text-center"> No Posts Available </h1>
 
          `;
 
@@ -278,7 +278,7 @@ async function showGaiansPage(){
             sortByText.textContent = "Post asc"
         }else if (sortBy === 'posts-desc'){
             gaians.sort((a,b) => b.total_posts - a.total_posts);
-            sortByText.textContent = "Post Desc"
+            sortByText.textContent = "Post desc"
         }
         
         renderGaians();
@@ -327,8 +327,9 @@ async function showPostDetailsPage(id) {
                                 <hr>
                                 <p class="card-text post-details">${post.content} </p>
                                 <div class="text-center mt-4" id="post-button-options">
-                                    <button type="button" id="edit-post" class="btn btn-primary mr-2">Edit</button>
-                                    <button type="button" id="delete-post" class="btn btn-danger">Delete</button>
+                                    <button type="button" id="edit-post" class="btn btn-primary mx-4">Edit</button>
+                                    <button type="button" class="btn btn-danger"
+                                    data-bs-toggle="modal" data-bs-target="#deletePostModal">Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -337,9 +338,17 @@ async function showPostDetailsPage(id) {
             </div>
             `
             mainContainer.innerHTML += child;
-            const editPost = document.getElementById('edit-post')
-            editPost.addEventListener('click', editPostDetails)
-           
+
+            document.getElementById('edit-post').addEventListener('click', ()=>{
+                editPostDetails()
+            })
+
+            document.getElementById('delete-post-button').addEventListener('click', async ()=>{
+                let postID = window.location.hash.substring(6)
+                console.log(postID)
+                await deletePost(postID)
+                return;
+            })
             
             
         } else {
@@ -394,7 +403,9 @@ function editPostDetails(){
                 title:editableItems[0].innerText,
                 content:editableItems[1].innerText
             }
-            const response = await fetch(`http://localhost:4000/posts/${window.location.hash.substring(6)}`, {
+
+            let postID = window.location.hash.substring(6);
+            const response = await fetch(`http://localhost:4000/posts/${postID}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
@@ -417,6 +428,21 @@ function editPostDetails(){
     })
 }
 
+async function deletePost(postID){
+    try {
+        const response = fetch(`http://localhost:4000/posts/${postID}`,{
+            method: 'DELETE',
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+        if(response.ok){
+            window.location.hash = '#posts'
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
 async function getPostDetails(postID){
     try {
         const response = await fetch(`http://localhost:4000/posts/${postID}`,{
@@ -442,7 +468,6 @@ function selectPageView() {
     const hash = window.location.hash;
   
     if (hash.startsWith('#post/')) {
-      
       const postId = hash.substring(6); 
       showPostDetailsPage(postId);
     } else {
