@@ -294,6 +294,25 @@ async function showPostDetailsPage(id) {
             mainContainer.innerHTML = ''
             
             const child = `
+            <div class="modal" id="cofirmPostDeletionModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Confirm Deletion</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <p>Do you want to delete this post?</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" id="confirm-delete" class="btn btn-danger">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+            
+            
             <div class="container">
                 <div class="row">
                     <div class="col-md-8 offset-md-2">
@@ -307,7 +326,7 @@ async function showPostDetailsPage(id) {
                                 <p class="card-text post-details">${post.content} </p>
                                 <div class="text-center mt-4" id="post-button-options">
                                     <button type="button" id="edit-post" class="btn btn-primary mx-4">Edit</button>
-                                    <button type="button" class="btn btn-danger">Delete</button>
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cofirmPostDeletionModal">Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -321,11 +340,10 @@ async function showPostDetailsPage(id) {
                 editPostDetails()
             })
 
-            document.getElementById('delete-post-button').addEventListener('click', async ()=>{
+            document.getElementById('confirm-delete').addEventListener('click', async ()=>{
                 let postID = window.location.hash.substring(6)
                 console.log(postID)
                 await deletePost(postID)
-                return;
             })
             
             
@@ -477,6 +495,8 @@ async function deletePost(postID){
         })
         if(response.ok){
             window.location.hash = '#posts'
+        }else{
+            console.log(response.error)
         }
     } catch (error) {
         console.log(error)
