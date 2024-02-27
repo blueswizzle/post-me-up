@@ -342,7 +342,16 @@ async function showPostDetailsPage(id) {
 
             document.getElementById('confirm-delete').addEventListener('click', async ()=>{
                 let postID = window.location.hash.substring(6)
-                await deletePost(postID)
+                let deleted = await deletePost(postID)
+                if(deleted){
+                    const modal = document.getElementById('cofirmPostDeletionModal'); 
+                    const bootstrapModal = bootstrap.Modal.getInstance(modal)
+                    await bootstrapModal.hide();
+
+                    window.location.hash = '#posts'
+                }else{
+                    alert("Something went wrong. Post was not deleted")
+                }
             })
             
             
@@ -496,9 +505,11 @@ async function deletePost(postID) {
         if (response.ok) {
             const deletedPost = await response.json();
             console.log("Deleted Post: ", deletedPost);
+            return true;
         } else {
             const errorData = await response.json(); 
             console.log(errorData);
+            return false;
         }
     } catch (error) {
         console.log(error);

@@ -191,7 +191,7 @@ router.delete('/posts/:id', async (req, res) => {
         const deletePost = await pool.query(
             "DELETE FROM post WHERE id = $1 RETURNING *", [id]
         );
-
+        console.log("Post to be deleted: ", deletePost)
         if (deletePost.rows.length === 1) {
             return res.status(200).json(deletePost.rows[0]);
         } else {
