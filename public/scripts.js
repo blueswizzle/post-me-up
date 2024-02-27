@@ -108,13 +108,11 @@ async function populatePostBoard(postBoard) {
 
            
             const postHTML = `
-            <a href="#post/${post.post_id}" class="text-decoration-none link-light">
                 <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-4 w-50 post" id=${post.post_id}>
                     <p class="fw-bold">@${post.username}</p>
                     <p class="overflow-hidden">${post.title}</p>
                     <p class="fs-6 fw-lighter">${createdPostDate} <span>${hours}:${minutes} ${ampm}</span></p>
                 </div>
-            </a>
             `;
 
 
@@ -465,11 +463,15 @@ function editPostDetails(){
    
     document.getElementById('save-edit').addEventListener('click', async ()=>{
         try {
+            const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+            const currentTime = new Date().toLocaleTimeString([], { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' });
             const data = {
                 title:editableItems[0].innerText,
-                content:editableItems[1].innerText
+                content:editableItems[1].innerText,
+                updated_date: currentDate,
+                updated_time: currentTime
             }
-
+            console.log(data)
             let postID = window.location.hash.substring(6);
             const response = await fetch(`http://localhost:4000/posts/${postID}`, {
                 method: 'PATCH',

@@ -166,9 +166,10 @@ router.get('/posts/:search', async (req, res) => {
 router.patch('/posts/:id', async (req,res) =>{
     try {
         const id = req.params.id
-        const {title,content} = req.body
+        const {title,content,updated_date,updated_time} = req.body
         const response = await pool.query(
-            "UPDATE post SET title = $1, content = $2 WHERE id = $3 RETURNING *",[title,content,id]
+            "UPDATE post SET title = $1, content = $2, updated_date = $3, updated_time = $4 WHERE id = $5 RETURNING *"
+            ,[title,content,updated_date,updated_time,id]
         )
         if (response.rowCount === 1) {
             res.status(200).json({ message: 'Post updated successfully', post: response.rows[0] });
