@@ -1,19 +1,9 @@
-const createGaianForm = document.getElementById('create-gaian-form')
-const createPostForm = document.getElementById('create-post-form')
 const mainContainer = document.getElementById('main-container')
 
-
-
-
-createGaianForm.addEventListener('submit', async (e) => {
-    e.preventDefault()
-    console.log("Username is ", createGaianForm.elements['gaianName'].value)
-    const formData = {
-        'username': createGaianForm.elements['gaianName'].value
-    }
-
+async function createGaian(formData){
     try {
-        let message = document.getElementById('create-gaian-error')
+        console.log(formData)
+        let message = document.getElementById('create-gaian-message')
         const response = await fetch('http://localhost:4000/gaians', {
             method: 'POST',
             headers: {
@@ -39,17 +29,12 @@ createGaianForm.addEventListener('submit', async (e) => {
     } catch (error) {
         console.log("Error is", error)
     }
-})
+}
 
-createPostForm.addEventListener('submit', async (e) => {
-    e.preventDefault()
+async function createPost(formData){
     try {
-        let message = document.getElementById('create-post-error')
-        const formData = {
-            username: createPostForm.elements['postGaianUsername'].value,
-            title: createPostForm.elements['postTitle'].value,
-            content: createPostForm.elements['postBody'].value
-        }
+        let message = document.getElementById('create-post-message')
+        console.log(formData)
         const response = await fetch('http://localhost:4000/gaian/post', {
             method: 'POST',
             headers: {
@@ -77,11 +62,7 @@ createPostForm.addEventListener('submit', async (e) => {
     } catch (error) {
         console.log("Error is ", error)
     }
-})
-
-
-
-
+}
 
 
 async function getAllPosts() {
@@ -302,8 +283,6 @@ async function showPostDetailsPage(id) {
         if (post) {
             
             const postDate = new Date(post.post_date);
-
-            
             const formattedDate = new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -328,8 +307,7 @@ async function showPostDetailsPage(id) {
                                 <p class="card-text post-details">${post.content} </p>
                                 <div class="text-center mt-4" id="post-button-options">
                                     <button type="button" id="edit-post" class="btn btn-primary mx-4">Edit</button>
-                                    <button type="button" class="btn btn-danger"
-                                    data-bs-toggle="modal" data-bs-target="#deletePostModal">Delete</button>
+                                    <button type="button" class="btn btn-danger">Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -360,6 +338,67 @@ async function showPostDetailsPage(id) {
     }
 }
 
+function showCreatePostPage(){
+    mainContainer.innerHTML = ''
+    const child = `
+    <h1 class = "text-center">Create Post </h1>
+    <form id="create-post-form">
+        <div class="mb-3">
+        <label for="gaianUsername" class="form-label">Username</label>
+        <input type="text" class="form-control" id="gaianUsername" placeholder="Enter username" required>
+        </div>
+        <div class="mb-3">
+        <label for="postTitle" class="form-label">Post Title</label>
+        <input type="text" class="form-control" id="postTitle" placeholder="Enter title" required>
+        </div>
+        <div class="mb-3">
+        <label for="postContent" class="form-label">Content</label>
+        <textarea class="form-control" id="postContent" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-light">Create Post</button>
+    </form>
+    <p id="create-post-message"> </p>
+    `
+    mainContainer.innerHTML += child;
+
+    let form = document.getElementById('create-post-form')
+    form.addEventListener('submit', async (e)=>{
+        e.preventDefault()
+        const formData = {
+            username: form.elements['gaianUsername'].value,
+            title: form.elements['postTitle'].value,
+            content: form.elements['postContent'].value
+        }
+        await createPost(formData);
+    })
+
+}
+
+function showCreateGaianPage(){
+    mainContainer.innerHTML = ''
+    const child = `
+    <h1 class = "text-center">Create Gaian </h1>
+    <form id="create-gaian-form">
+        <div class="mb-3">
+            <label for="gaianUsername" class="form-label">Username</label>
+            <input type="text" class="form-control" id="gaianUsername" placeholder="Enter username" required>
+        </div>
+        <button type="submit" class="btn btn-light">Create Gaian</button>
+        
+    </form>
+    <p id="create-gaian-message"> </p>
+    `
+    mainContainer.innerHTML += child
+    let form = document.getElementById('create-gaian-form')
+    form.addEventListener('submit', async (e) =>{
+        e.preventDefault()
+        const formData = {
+            'username': form.elements['gaianUsername'].value
+        }
+        await createGaian(formData)
+    })
+
+}
 
 function editPostDetails(){
     let editableItems = document.querySelectorAll('.post-details')
@@ -478,6 +517,12 @@ function selectPageView() {
         case '#gaians':
           showGaiansPage();
           break;
+        case '#createPost':
+          showCreatePostPage();
+          break;
+        case '#createGaian':
+          showCreateGaianPage();
+          break;    
         default:
           showHomePage();
           break;
