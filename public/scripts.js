@@ -226,7 +226,7 @@ function showHomePage(){
       <h1 class="text-center">Welcome to PostMeUp</h1>
       <h2 class="text-center">You're essentially an admin that can create gaians (users), posts, update, and delete them</h2>
       <p class="text-center my-5">Use the nav links to create gaians,posts, and to view them. Clicking on a post
-        will show the full post body. There you can update and/or delete the post. Same applies for gaians.
+        will show the full post body. There you can update and/or delete the post. Same applies for gaians in regards to deletion.
       </p> 
     `
     mainContainer.innerHTML += child;
