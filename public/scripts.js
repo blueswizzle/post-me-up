@@ -204,8 +204,7 @@ async function showPostsPage(){
 
 async function showGaiansPage(){
     mainContainer.innerHTML = '';
-
-    mainContainer.innerHTML += `
+    const child = `
     <h1 class="text-center">Viewing Gaians</h1>
         <div class="dropdown my-4">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -223,6 +222,8 @@ async function showGaiansPage(){
         </div>
     </div> 
     `;
+    mainContainer.innerHTML += child
+ 
     const sortByText = document.getElementById('sort-by-text')
     const board = document.getElementById('gaian-board');
 
@@ -307,11 +308,19 @@ async function showPostDetailsPage(id) {
                                 <p class="card-text post-details">${post.content} </p>
                                 <div class="text-center mt-4" id="post-button-options">
                                     <button type="button" id="edit-post" class="btn btn-primary mx-4">Edit</button>
-                                    <button type="button" class="btn btn-danger">Delete</button>
+                                    <button type="button" id="delete-post-button" class="btn btn-danger">Delete</button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- The Modal -->
+            <div id="myModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <p>Some text in the Modal..</p>
                 </div>
             </div>
             `
@@ -321,11 +330,9 @@ async function showPostDetailsPage(id) {
                 editPostDetails()
             })
 
-            document.getElementById('delete-post-button').addEventListener('click', async ()=>{
+            document.getElementById('delete-post-button').addEventListener('click', ()=>{
                 let postID = window.location.hash.substring(6)
-                console.log(postID)
-                await deletePost(postID)
-                return;
+                openConfirmDeleteModal(postID)
             })
             
             
@@ -338,6 +345,23 @@ async function showPostDetailsPage(id) {
     }
 }
 
+function openConfirmDeleteModal(postid){
+    let modal = document.getElementById('myModal')
+    modal.style.display = "block";
+    let closeIcon = document.querySelector('.modal-content span')
+
+    closeIcon.onclick = () =>{
+        modal.style.display = "none";
+    }
+
+
+    window.onclick = (e)=> {
+        if (e.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+    console.log(closeIcon)
+}
 function showCreatePostPage(){
     mainContainer.innerHTML = ''
     const child = `
