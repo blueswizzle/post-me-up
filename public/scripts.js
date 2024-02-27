@@ -235,7 +235,7 @@ async function showPostsPage(){
     const child = document.createElement('div');
 
     child.innerHTML = `
-        <h1 class="text-center">Viewing Posts</h1>
+        <h1 class="text-center">Viewing All Posts</h1>
         <div id="post-board" class="container-lg d-md-flex flex-column justifiy-content-center align-items-center">
     `
     mainContainer.appendChild(child)
@@ -246,7 +246,7 @@ async function showPostsPage(){
 async function showGaiansPage(){
     mainContainer.innerHTML = '';
     const child = `
-    <h1 class="text-center">Viewing Gaians</h1>
+    <h1 class="text-center">Viewing All Gaians</h1>
         <div class="dropdown my-4">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Sort by: <span id="sort-by-text">A-Z</span>
@@ -498,7 +498,7 @@ function editPostDetails(){
 function showCreatePostPage(){
     mainContainer.innerHTML = ''
     const child = `
-    <h1 class = "text-center">Create Post </h1>
+    <h1 class = "text-center">Create A Post </h1>
     <form id="create-post-form">
         <div class="mb-3">
         <label for="gaianUsername" class="form-label">Username</label>
@@ -512,7 +512,7 @@ function showCreatePostPage(){
         <label for="postContent" class="form-label">Content</label>
         <textarea class="form-control" id="postContent" rows="5" required></textarea>
         </div>
-        <button type="submit" class="btn btn-light">Create Post</button>
+        <button type="submit" class="btn btn-outline-dark">Create Post</button>
     </form>
     <p id="create-post-message"> </p>
     `
@@ -534,13 +534,13 @@ function showCreatePostPage(){
 function showCreateGaianPage(){
     mainContainer.innerHTML = ''
     const child = `
-    <h1 class = "text-center">Create Gaian </h1>
+    <h1 class = "text-center">Create A Gaian </h1>
     <form id="create-gaian-form">
         <div class="mb-3">
             <label for="gaianUsername" class="form-label">Username</label>
             <input type="text" class="form-control" id="gaianUsername" placeholder="Enter username" required>
         </div>
-        <button type="submit" class="btn btn-light">Create Gaian</button>
+        <button type="submit" class="btn btn-outline-dark">Create Gaian</button>
         
     </form>
     <p id="create-gaian-message"> </p>
