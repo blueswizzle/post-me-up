@@ -12,14 +12,15 @@ async function createGaian(formData){
             body: JSON.stringify(formData)
         })
 
-        const data = await response.json()
         if (response.ok) {
+            const data = await response.json()
             console.log("Gaian created successfully ", data)
             message.classList.remove('text-danger')
             message.classList.add('text-success')
             message.innerText = 'Gaian created!'
         } else if (response.status == 400) {
-            console.log(data.error)
+            const errorData = await response.json()
+            console.log(errorData)
             message.classList.remove('text-success')
             message.classList.add('text-danger')
             message.innerText = 'Username already exists!'
@@ -139,7 +140,49 @@ async function populatePostBoard(postBoard) {
     }
 }
 
+async function deletePost(postID) {
+    try {
+        const response = await fetch(`http://localhost:4000/posts/${postID}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
+        if (response.ok) {
+            const deletedPost = await response.json();
+            console.log("Deleted Post: ", deletedPost);
+            return true;
+        } else {
+            const errorData = await response.json(); 
+            console.log(errorData);
+            return false;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function getPostDetails(postID){
+    try {
+        const response = await fetch(`http://localhost:4000/posts/${postID}`,{
+            method: 'GET',
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+
+        const data = await response.json()
+
+        if(response.ok){
+            return data
+        }else{
+            console.log('Something went wrong', response.error)
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 async function getAllGaians() {
     try {
@@ -233,7 +276,7 @@ async function showGaiansPage(){
         gaians.forEach(gaian => {
             const element = `
                 <div class="col">
-                    <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-2 gaian" id="${gaian.id}">
+                    <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-2 gaian" data-gaian-id="${gaian.id}">
                         <p class="fw-bold text-center text-truncate">@${gaian.username}</p>
                         <p class="fw-bold text-center text-truncate">Posts: ${gaian.total_posts}</p>
                     </div>
@@ -241,6 +284,14 @@ async function showGaiansPage(){
             `;
             board.innerHTML += element;
         });
+        let elements = document.querySelectorAll('.gaian')
+        elements.forEach((element) =>{
+            element.addEventListener('click', (e)=>{
+                let gaianID = e.target.closest('.gaian').getAttribute('data-gaian-id')
+                console.log(gaianID)
+            })
+        })
+        
     };
 
     
@@ -364,68 +415,6 @@ async function showPostDetailsPage(id) {
     }
 }
 
-function showCreatePostPage(){
-    mainContainer.innerHTML = ''
-    const child = `
-    <h1 class = "text-center">Create Post </h1>
-    <form id="create-post-form">
-        <div class="mb-3">
-        <label for="gaianUsername" class="form-label">Username</label>
-        <input type="text" class="form-control" id="gaianUsername" placeholder="Enter username" required>
-        </div>
-        <div class="mb-3">
-        <label for="postTitle" class="form-label">Post Title</label>
-        <input type="text" class="form-control" id="postTitle" placeholder="Enter title" required>
-        </div>
-        <div class="mb-3">
-        <label for="postContent" class="form-label">Content</label>
-        <textarea class="form-control" id="postContent" rows="5" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-light">Create Post</button>
-    </form>
-    <p id="create-post-message"> </p>
-    `
-    mainContainer.innerHTML += child;
-
-    let form = document.getElementById('create-post-form')
-    form.addEventListener('submit', async (e)=>{
-        e.preventDefault()
-        const formData = {
-            username: form.elements['gaianUsername'].value,
-            title: form.elements['postTitle'].value,
-            content: form.elements['postContent'].value
-        }
-        await createPost(formData);
-    })
-
-}
-
-function showCreateGaianPage(){
-    mainContainer.innerHTML = ''
-    const child = `
-    <h1 class = "text-center">Create Gaian </h1>
-    <form id="create-gaian-form">
-        <div class="mb-3">
-            <label for="gaianUsername" class="form-label">Username</label>
-            <input type="text" class="form-control" id="gaianUsername" placeholder="Enter username" required>
-        </div>
-        <button type="submit" class="btn btn-light">Create Gaian</button>
-        
-    </form>
-    <p id="create-gaian-message"> </p>
-    `
-    mainContainer.innerHTML += child
-    let form = document.getElementById('create-gaian-form')
-    form.addEventListener('submit', async (e) =>{
-        e.preventDefault()
-        const formData = {
-            'username': form.elements['gaianUsername'].value
-        }
-        await createGaian(formData)
-    })
-
-}
-
 function editPostDetails(){
     let editableItems = document.querySelectorAll('.post-details')
     let buttons = document.querySelectorAll('#post-button-options button')
@@ -492,57 +481,84 @@ function editPostDetails(){
         showPostDetailsPage(window.location.hash.substring(6));
     })
 }
+function showCreatePostPage(){
+    mainContainer.innerHTML = ''
+    const child = `
+    <h1 class = "text-center">Create Post </h1>
+    <form id="create-post-form">
+        <div class="mb-3">
+        <label for="gaianUsername" class="form-label">Username</label>
+        <input type="text" class="form-control" id="gaianUsername" placeholder="Enter username" required>
+        </div>
+        <div class="mb-3">
+        <label for="postTitle" class="form-label">Post Title</label>
+        <input type="text" class="form-control" id="postTitle" placeholder="Enter title" required>
+        </div>
+        <div class="mb-3">
+        <label for="postContent" class="form-label">Content</label>
+        <textarea class="form-control" id="postContent" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-light">Create Post</button>
+    </form>
+    <p id="create-post-message"> </p>
+    `
+    mainContainer.innerHTML += child;
 
-async function deletePost(postID) {
-    try {
-        const response = await fetch(`http://localhost:4000/posts/${postID}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (response.ok) {
-            const deletedPost = await response.json();
-            console.log("Deleted Post: ", deletedPost);
-            return true;
-        } else {
-            const errorData = await response.json(); 
-            console.log(errorData);
-            return false;
+    let form = document.getElementById('create-post-form')
+    form.addEventListener('submit', async (e)=>{
+        e.preventDefault()
+        const formData = {
+            username: form.elements['gaianUsername'].value,
+            title: form.elements['postTitle'].value,
+            content: form.elements['postContent'].value
         }
-    } catch (error) {
-        console.log(error);
-    }
+        await createPost(formData);
+    })
+
 }
 
-async function getPostDetails(postID){
-    try {
-        const response = await fetch(`http://localhost:4000/posts/${postID}`,{
-            method: 'GET',
-            headers:{
-                'Content-Type':'application/json'
-            }
-        })
-
-        const data = await response.json()
-
-        if(response.ok){
-            return data
-        }else{
-            console.log('Something went wrong', response.error)
+function showCreateGaianPage(){
+    mainContainer.innerHTML = ''
+    const child = `
+    <h1 class = "text-center">Create Gaian </h1>
+    <form id="create-gaian-form">
+        <div class="mb-3">
+            <label for="gaianUsername" class="form-label">Username</label>
+            <input type="text" class="form-control" id="gaianUsername" placeholder="Enter username" required>
+        </div>
+        <button type="submit" class="btn btn-light">Create Gaian</button>
+        
+    </form>
+    <p id="create-gaian-message"> </p>
+    `
+    mainContainer.innerHTML += child
+    let form = document.getElementById('create-gaian-form')
+    form.addEventListener('submit', async (e) =>{
+        e.preventDefault()
+        const formData = {
+            'username': form.elements['gaianUsername'].value
         }
-    } catch (error) {
-        console.log(error)
-    }
+        await createGaian(formData)
+    })
+
 }
+
+function showGaianProfilePage(){
+
+
+}
+
+
 
 function selectPageView() {
     const hash = window.location.hash;
   
     if (hash.startsWith('#post/')) {
-      const postId = hash.substring(6); 
-      showPostDetailsPage(postId);
+      const postID = hash.substring(6); 
+      showPostDetailsPage(postID);
+    } else if(hash.startsWith('#gaian/')){
+        const gaianID = hash.substring(7)
+        console.log(gaianID)
     } else {
       switch (hash) {
         case '#posts':
