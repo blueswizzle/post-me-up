@@ -97,7 +97,7 @@ async function populatePostBoard(postBoard) {
             const postDate = new Date(post.post_date);
 
             // Format the date
-            const formattedDate = new Intl.DateTimeFormat('en-US', {
+            const createdPostDate = new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
@@ -106,13 +106,13 @@ async function populatePostBoard(postBoard) {
             let time = post.post_time
             const { hours, minutes, ampm } = convertTimeToHoursMinutes(time);
 
-           // Use template literals to create HTML
+           
             const postHTML = `
             <a href="#post/${post.post_id}" class="text-decoration-none link-light">
                 <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-4 w-50 post" id=${post.post_id}>
                     <p class="fw-bold">@${post.username}</p>
                     <p class="overflow-hidden">${post.title}</p>
-                    <p class="fs-6 fw-lighter">${formattedDate} <span>${hours}:${minutes} ${ampm}</span></p>
+                    <p class="fs-6 fw-lighter">${createdPostDate} <span>${hours}:${minutes} ${ampm}</span></p>
                 </div>
             </a>
             `;
@@ -120,7 +120,7 @@ async function populatePostBoard(postBoard) {
 
            
 
-            // Append the HTML string to the postBoard
+            
             postBoard.innerHTML += postHTML;
         }
         document.querySelectorAll('.post').forEach(box =>{
@@ -333,9 +333,8 @@ async function showPostDetailsPage(id) {
         const post = await getPostDetails(postID);
 
         if (post) {
-            
             const postDate = new Date(post.post_date);
-            const formattedDate = new Intl.DateTimeFormat('en-US', {
+            const createdPostDate = new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
@@ -343,6 +342,18 @@ async function showPostDetailsPage(id) {
 
             let time = post.post_time
             const { hours, minutes, ampm } = convertTimeToHoursMinutes(time);
+
+            const updatedDate = new Date(post.updated_date);
+            const updatedPostDate = new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }).format(updatedDate);
+
+            let updatedTime = post.updated_time
+
+            
+            const updated_time = convertTimeToHoursMinutes(updatedTime)
             mainContainer.innerHTML = ''
             
             const child = `
@@ -372,8 +383,8 @@ async function showPostDetailsPage(id) {
                             <div class="card-body">
                                 <h5 class="card-title post-details">${post.title}</h5>
                                 <p class="card-text"> @${post.username}</p>
-                                <p class="card-text ">${formattedDate}</p>
-                                <p class="card-text">${hours}:${minutes} ${ampm}</p>
+                                <p class="card-text ">Posted on: ${createdPostDate}  ${hours}:${minutes} ${ampm}</p>
+                                <p class="card-text ">Last Updated: ${updatedPostDate}  ${updated_time.hours}:${updated_time.minutes} ${updated_time.ampm}</p>
                                 <hr>
                                 <p class="card-text post-details">${post.content} </p>
                                 <div class="text-center mt-4" id="post-button-options">
@@ -383,14 +394,6 @@ async function showPostDetailsPage(id) {
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- The Modal -->
-            <div id="myModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <p>Some text in the Modal..</p>
                 </div>
             </div>
             `

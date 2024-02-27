@@ -13,5 +13,7 @@ CREATE TABLE post(
     content TEXT NOT NULL,
     post_date DATE DEFAULT CURRENT_DATE,
     post_time TIME DEFAULT CURRENT_TIME,
+    updated_date DATE DEFAULT CURRENT_DATE,
+    updated_time TIME DEFAULT CURRENT_TIME,
     FOREIGN KEY (gaian_id) REFERENCES gaian(id)
 );
