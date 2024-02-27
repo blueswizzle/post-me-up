@@ -185,22 +185,24 @@ router.patch('/posts/:id', async (req,res) =>{
 })
 
 
-router.delete('/posts/:id', async (req,res)=>{
+router.delete('/posts/:id', async (req, res) => {
     try {
-        const id = req.params.id
+        const id = req.params.id;
         const deletePost = await pool.query(
-            "DELETE FROM post WHERE id = $1 RETURNING *",[id]
-        )
-        if(deletePost.rows.length === 1){
-            return res.status(200).json(deletePost.rows[0])
-        }else{
-            return res.status(404).json("Post not found!")
+            "DELETE FROM post WHERE id = $1 RETURNING *", [id]
+        );
+
+        if (deletePost.rows.length === 1) {
+            return res.status(200).json(deletePost.rows[0]);
+        } else {
+            return res.status(404).json("Post not found!");
         }
     } catch (error) {
-        console.log(error)
-        return res.status(500).json(error)
+        console.error("Error deleting post:", error);
+        return res.status(500).json("An internal server error occurred.");
     }
-})
+});
+
 
 router.get('/',(req,res)=>{
     res.sendFile('index.html')

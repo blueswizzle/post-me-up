@@ -124,7 +124,7 @@ async function populatePostBoard(postBoard) {
         }
         document.querySelectorAll('.post').forEach(box =>{
             box.addEventListener('click', ()=>{
-                showPostDetailsPage(box.id)
+                window.location.hash = `#post/${box.id}`
             })
         })
         
@@ -342,7 +342,6 @@ async function showPostDetailsPage(id) {
 
             document.getElementById('confirm-delete').addEventListener('click', async ()=>{
                 let postID = window.location.hash.substring(6)
-                console.log(postID)
                 await deletePost(postID)
             })
             
@@ -471,7 +470,7 @@ function editPostDetails(){
             })
             const r = await response.json();
             if(response.ok){
-                showPostDetailsPage(window.location.hash.substring(6));
+                showPostDetailsPage(postID);
             }else{
                 console.log(r)
             } 
@@ -485,23 +484,27 @@ function editPostDetails(){
     })
 }
 
-async function deletePost(postID){
+async function deletePost(postID) {
     try {
-        const response = fetch(`http://localhost:4000/posts/${postID}`,{
+        const response = await fetch(`http://localhost:4000/posts/${postID}`, {
             method: 'DELETE',
-            headers:{
-                'Content-Type':'application/json'
+            headers: {
+                'Content-Type': 'application/json'
             }
-        })
-        if(response.ok){
-            window.location.hash = '#posts'
-        }else{
-            console.log(response.error)
+        });
+
+        if (response.ok) {
+            const deletedPost = await response.json();
+            console.log("Deleted Post: ", deletedPost);
+        } else {
+            const errorData = await response.json(); 
+            console.log(errorData);
         }
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 }
+
 async function getPostDetails(postID){
     try {
         const response = await fetch(`http://localhost:4000/posts/${postID}`,{
