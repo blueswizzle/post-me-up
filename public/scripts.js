@@ -12,14 +12,15 @@ async function createGaian(formData){
             body: JSON.stringify(formData)
         })
 
-        const data = await response.json()
         if (response.ok) {
+            const data = await response.json()
             console.log("Gaian created successfully ", data)
             message.classList.remove('text-danger')
             message.classList.add('text-success')
             message.innerText = 'Gaian created!'
         } else if (response.status == 400) {
-            console.log(data.error)
+            const errorData = await response.json()
+            console.log(errorData)
             message.classList.remove('text-success')
             message.classList.add('text-danger')
             message.innerText = 'Username already exists!'
@@ -124,7 +125,7 @@ async function populatePostBoard(postBoard) {
         }
         document.querySelectorAll('.post').forEach(box =>{
             box.addEventListener('click', ()=>{
-                showPostDetailsPage(box.id)
+                window.location.hash = `#post/${box.id}`
             })
         })
         
@@ -139,7 +140,49 @@ async function populatePostBoard(postBoard) {
     }
 }
 
+async function deletePost(postID) {
+    try {
+        const response = await fetch(`http://localhost:4000/posts/${postID}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
+        if (response.ok) {
+            const deletedPost = await response.json();
+            console.log("Deleted Post: ", deletedPost);
+            return true;
+        } else {
+            const errorData = await response.json(); 
+            console.log(errorData);
+            return false;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function getPostDetails(postID){
+    try {
+        const response = await fetch(`http://localhost:4000/posts/${postID}`,{
+            method: 'GET',
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+
+        const data = await response.json()
+
+        if(response.ok){
+            return data
+        }else{
+            console.log('Something went wrong', response.error)
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 async function getAllGaians() {
     try {
@@ -234,7 +277,7 @@ async function showGaiansPage(){
         gaians.forEach(gaian => {
             const element = `
                 <div class="col">
-                    <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-2 gaian" id="${gaian.id}">
+                    <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-2 gaian" data-gaian-id="${gaian.id}">
                         <p class="fw-bold text-center text-truncate">@${gaian.username}</p>
                         <p class="fw-bold text-center text-truncate">Posts: ${gaian.total_posts}</p>
                     </div>
@@ -242,6 +285,14 @@ async function showGaiansPage(){
             `;
             board.innerHTML += element;
         });
+        let elements = document.querySelectorAll('.gaian')
+        elements.forEach((element) =>{
+            element.addEventListener('click', (e)=>{
+                let gaianID = e.target.closest('.gaian').getAttribute('data-gaian-id')
+                console.log(gaianID)
+            })
+        })
+        
     };
 
     
@@ -295,6 +346,25 @@ async function showPostDetailsPage(id) {
             mainContainer.innerHTML = ''
             
             const child = `
+            <div class="modal" id="cofirmPostDeletionModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Confirm Deletion</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <p>Do you want to delete this post?</p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" id="confirm-delete" class="btn btn-danger">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+            
+            
             <div class="container">
                 <div class="row">
                     <div class="col-md-8 offset-md-2">
@@ -308,7 +378,7 @@ async function showPostDetailsPage(id) {
                                 <p class="card-text post-details">${post.content} </p>
                                 <div class="text-center mt-4" id="post-button-options">
                                     <button type="button" id="edit-post" class="btn btn-primary mx-4">Edit</button>
-                                    <button type="button" id="delete-post-button" class="btn btn-danger">Delete</button>
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cofirmPostDeletionModal">Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -330,9 +400,18 @@ async function showPostDetailsPage(id) {
                 editPostDetails()
             })
 
-            document.getElementById('delete-post-button').addEventListener('click', ()=>{
+            document.getElementById('confirm-delete').addEventListener('click', async ()=>{
                 let postID = window.location.hash.substring(6)
-                openConfirmDeleteModal(postID)
+                let deleted = await deletePost(postID)
+                if(deleted){
+                    const modal = document.getElementById('cofirmPostDeletionModal'); 
+                    const bootstrapModal = bootstrap.Modal.getInstance(modal)
+                    await bootstrapModal.hide();
+
+                    window.location.hash = '#posts'
+                }else{
+                    alert("Something went wrong. Post was not deleted")
+                }
             })
             
             
@@ -345,22 +424,71 @@ async function showPostDetailsPage(id) {
     }
 }
 
-function openConfirmDeleteModal(postid){
-    let modal = document.getElementById('myModal')
-    modal.style.display = "block";
-    let closeIcon = document.querySelector('.modal-content span')
+function editPostDetails(){
+    let editableItems = document.querySelectorAll('.post-details')
+    let buttons = document.querySelectorAll('#post-button-options button')
+    buttons.forEach(button =>{
+        button.style.display = 'none'
+    })
+    
+    const editOptions = `
+    <button type="button" id="save-edit" class="btn btn-primary mr-2">Save</button>
+    <button type="button" id="cancel-edit" class="btn btn-danger">Cancel</button>
+    `
 
-    closeIcon.onclick = () =>{
-        modal.style.display = "none";
-    }
-
-
-    window.onclick = (e)=> {
-        if (e.target == modal) {
-          modal.style.display = "none";
+    
+    document.getElementById('post-button-options').innerHTML += editOptions
+  
+    
+    editableItems.forEach((item, index) =>{
+        item.contentEditable = true;
+        item.classList.add('border')
+        item.classList.add('border-info')
+        item.classList.add('p-1')
+        item.classList.add('rounded')
+        if(index == 0){
+            item.addEventListener('beforeinput', (e) => {
+                const maxLength = 100; 
+                if (item.textContent.length >= maxLength && e.inputType !== 'deleteContentBackward') {
+                    e.preventDefault(); 
+                }
+                
+                
+            });
         }
-      }
-    console.log(closeIcon)
+        
+    })
+
+   
+    document.getElementById('save-edit').addEventListener('click', async ()=>{
+        try {
+            const data = {
+                title:editableItems[0].innerText,
+                content:editableItems[1].innerText
+            }
+
+            let postID = window.location.hash.substring(6);
+            const response = await fetch(`http://localhost:4000/posts/${postID}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body:JSON.stringify(data)
+            })
+            const r = await response.json();
+            if(response.ok){
+                showPostDetailsPage(postID);
+            }else{
+                console.log(r)
+            } 
+        } catch (error) {
+            alert(error.error)
+        }
+    })
+
+    document.getElementById('cancel-edit').addEventListener('click', ()=>{
+        showPostDetailsPage(window.location.hash.substring(6));
+    })
 }
 function showCreatePostPage(){
     mainContainer.innerHTML = ''
@@ -424,115 +552,22 @@ function showCreateGaianPage(){
 
 }
 
-function editPostDetails(){
-    let editableItems = document.querySelectorAll('.post-details')
-    let buttons = document.querySelectorAll('#post-button-options button')
-    buttons.forEach(button =>{
-        button.style.display = 'none'
-    })
-    
-    const editOptions = `
-    <button type="button" id="save-edit" class="btn btn-primary mr-2">Save</button>
-    <button type="button" id="cancel-edit" class="btn btn-danger">Cancel</button>
-    `
+function showGaianProfilePage(){
 
-    
-    document.getElementById('post-button-options').innerHTML += editOptions
-  
-    
-    editableItems.forEach((item, index) =>{
-        item.contentEditable = true;
-        item.classList.add('border')
-        item.classList.add('border-info')
-        item.classList.add('p-1')
-        item.classList.add('rounded')
-        if(index == 0){
-            item.addEventListener('beforeinput', (e) => {
-                const maxLength = 100; 
-                if (item.textContent.length >= maxLength && e.inputType !== 'deleteContentBackward') {
-                    e.preventDefault(); 
-                }
-                
-                
-            });
-        }
-        
-    })
 
-   
-    document.getElementById('save-edit').addEventListener('click', async ()=>{
-        try {
-            const data = {
-                title:editableItems[0].innerText,
-                content:editableItems[1].innerText
-            }
-
-            let postID = window.location.hash.substring(6);
-            const response = await fetch(`http://localhost:4000/posts/${postID}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body:JSON.stringify(data)
-            })
-            const r = await response.json();
-            if(response.ok){
-                showPostDetailsPage(window.location.hash.substring(6));
-            }else{
-                console.log(r)
-            } 
-        } catch (error) {
-            alert(error.error)
-        }
-    })
-
-    document.getElementById('cancel-edit').addEventListener('click', ()=>{
-        showPostDetailsPage(window.location.hash.substring(6));
-    })
 }
 
-async function deletePost(postID){
-    try {
-        const response = fetch(`http://localhost:4000/posts/${postID}`,{
-            method: 'DELETE',
-            headers:{
-                'Content-Type':'application/json'
-            }
-        })
-        if(response.ok){
-            window.location.hash = '#posts'
-        }
-    } catch (error) {
-        console.log(error)
-    }
-}
-async function getPostDetails(postID){
-    try {
-        const response = await fetch(`http://localhost:4000/posts/${postID}`,{
-            method: 'GET',
-            headers:{
-                'Content-Type':'application/json'
-            }
-        })
 
-        const data = await response.json()
-
-        if(response.ok){
-            return data
-        }else{
-            console.log('Something went wrong', response.error)
-        }
-    } catch (error) {
-        console.log(error)
-    }
-}
 
 function selectPageView() {
     const hash = window.location.hash;
   
     if (hash.startsWith('#post/')) {
-      const postId = hash.substring(6); 
-      showPostDetailsPage(postId);
+      const postID = hash.substring(6); 
+      showPostDetailsPage(postID);
+    } else if(hash.startsWith('#gaian/')){
+        const gaianID = hash.substring(7)
+        console.log(gaianID)
     } else {
       switch (hash) {
         case '#posts':
