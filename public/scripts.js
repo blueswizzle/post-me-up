@@ -600,16 +600,22 @@ async function showGaianProfilePage(gaianID){
                 <hr>
                 <div class="dropdown my-4">
                     <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Sort by: <span id="sort-by-text">Last Updated</span>
+                        Sort by: <span id="sort-by-text">Recently Updated</span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" data-sortby="last_updated">Last Updated</a></li>
+                        <li><a class="dropdown-item" href="#" data-sortby="recently_updated">Recently Updated</a></li>
                         <li><a class="dropdown-item" href="#" data-sortby="new">New</a></li>
                         <li><a class="dropdown-item" href="#" data-sortby="old">Old</a></li>
                     </ul>
                 </div>
-                <div id="post-container">
-        
+                <div class="container">
+                    <div id="post-container">
+            
+                    </div>
+                </div>
+                
+                <div class="my-5">
+                    <button type="button" class="btn btn-danger">Delete Gaian</button>
                 </div>    
             </div>
         
@@ -620,9 +626,9 @@ async function showGaianProfilePage(gaianID){
 
 
         const sortPosts = (sortBy) => {
-            if (sortBy === 'last_updated') {
-                posts.sort((post1,post2) => compareDateTime(post1,post2,'last_updated'))
-                sortByText.textContent = "Last Updated"
+            if (sortBy === 'recently_updated') {
+                posts.sort((post1,post2) => compareDateTime(post1,post2,'recently_updated'))
+                sortByText.textContent = "Recently Updated"
             }else if (sortBy === 'new') {
                 posts.sort((post1,post2) => compareDateTime(post1,post2,'asc'))
                 console.log(posts)
@@ -657,7 +663,7 @@ async function showGaianProfilePage(gaianID){
 
 
 function compareDateTime(obj1, obj2, sortOrder = 'asc') {
-    if(sortOrder === 'last_updated'){
+    if(sortOrder === 'recently_updated'){
         const dateTime1 = obj1.updated_date + ' ' + obj1.updated_time
         const dateTime2 = obj2.updated_date + ' ' + obj2.updated_time
         return dateTime2.localeCompare(dateTime1);
@@ -698,7 +704,7 @@ function renderGaianPosts(gaian,posts,board){
            
             const postHTML = `
                 <div class="col">
-                    <div class="container-sm d-sm-flex flex-column border border-black my-4 text-break post" data-post-id=${post.id}>
+                    <div class="container-sm d-sm-flex flex-column border border-black my-2 text-break post" data-post-id=${post.id}>
                         <p class="fw-bold">@${post.username}</p>
                         <p class="overflow-hidden">${post.title}</p>
                         <p class="fs-6 fw-lighter"> <span class= "fst-italic" >last updated</span>: ${updatedPostDate} <span>${hours}:${minutes} ${ampm}</span></p>
