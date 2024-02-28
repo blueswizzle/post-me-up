@@ -581,6 +581,7 @@ async function getGaianProfileData(gaianID){
     }
 }
 
+
 async function showGaianProfilePage(gaianID){
     try {
         const {gaian,posts} = await getGaianProfileData(gaianID)
@@ -597,6 +598,9 @@ async function showGaianProfilePage(gaianID){
                         <h4>Total Posts: ${posts.length}</h4>
                     </div>
                 </div>
+                <div class="my-2">
+                    <button type="button" class="btn btn-danger">Delete Gaian</button>
+                </div>   
                 <hr>
                 <div class="dropdown my-4">
                     <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -611,15 +615,13 @@ async function showGaianProfilePage(gaianID){
                 
                 <div id="post-container">
             
-                </div>
-                
-                <div class="my-5">
-                    <button type="button" class="btn btn-danger">Delete Gaian</button>
-                </div>    
+                </div>   
             </div>
         
         `
         mainContainer.innerHTML += child
+        
+        
         let board = document.getElementById('post-container')
         const sortByText = document.getElementById('sort-by-text')
 
@@ -658,6 +660,50 @@ async function showGaianProfilePage(gaianID){
 
 }
 
+function createPaginationElements(posts){
+    const pagination = document.createElement('nav');
+    const ul_list = document.createElement('ul');
+    ul_list.classList.add('pagination');
+        
+    // Calculate the number of pages
+    const num_pages = Math.ceil(posts.length / 10);
+        
+    // Create "Previous" link
+    const prev_li = document.createElement('li');
+    prev_li.classList.add('page-item');
+    const prev_link = document.createElement('a');
+    prev_link.classList.add('page-link');
+    prev_link.href = '#';
+    prev_link.textContent = 'Previous';
+    prev_li.appendChild(prev_link);
+    ul_list.appendChild(prev_li);
+        
+    // Create page number links
+    for (let i = 1; i <= num_pages; i++) {
+        const li_element = document.createElement('li');
+        li_element.classList.add('page-item');
+        const page_link = document.createElement('a');
+        page_link.classList.add('page-link');
+        page_link.href = '#';
+        page_link.textContent = i;
+        li_element.appendChild(page_link);
+        ul_list.appendChild(li_element);
+    }
+        
+    // Create "Next" link
+    const next_li = document.createElement('li');
+    next_li.classList.add('page-item');
+    const next_link = document.createElement('a');
+    next_link.classList.add('page-link');
+    next_link.href = '#';
+    next_link.textContent = 'Next';
+    next_li.appendChild(next_link);
+    ul_list.appendChild(next_li);
+        
+    pagination.appendChild(ul_list);
+
+    return pagination
+}
 
 function compareDateTime(obj1, obj2, sortOrder = 'asc') {
     if(sortOrder === 'recently_updated'){
@@ -698,11 +744,13 @@ function renderGaianPosts(gaian,posts,board){
 
            
             const postHTML = `
-                    <div class="container-sm d-sm-flex flex-column border border-black my-2 text-break post" data-post-id=${post.id}>
+                    <hr>
+                    <div class="container-sm d-sm-flex flex-column my-2 text-break post" data-post-id=${post.id}>
                         <p class="fw-bold">@${post.username}</p>
                         <p class="overflow-hidden">${post.title}</p>
                         <p class="fs-6 fw-lighter"> <span class= "fst-italic" >Posted On</span>: ${postedOnDate} <span>${hours}:${minutes} ${ampm}</span></p>
                     </div>
+                    
             `;
 
 
@@ -717,6 +765,10 @@ function renderGaianPosts(gaian,posts,board){
             })
         })
         
+        if (posts.length > 10) { 
+            const pagination = createPaginationElements(posts)
+            board.appendChild(pagination);
+        }
         
     } else {
         const postHTML = `
@@ -758,7 +810,7 @@ function selectPageView() {
       }
     }
 }
-  
+
 window.addEventListener('hashchange', selectPageView);
 
 selectPageView();
