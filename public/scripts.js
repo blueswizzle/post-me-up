@@ -130,7 +130,7 @@ async function populatePostBoard(postBoard) {
         
     } else {
         const postHTML = `
-            <h1 class="text-center"> No Posts Available </h1>
+            <h1 class="text-center my-5"> No Posts Available </h1>
 
          `;
 
@@ -606,7 +606,7 @@ async function showGaianProfilePage(gaianID){
                         <li><a class="dropdown-item" href="#" data-sortby="old">Old</a></li>
                     </ul>
                 </div>
-                <div class="row row-cols-4" id = "post-container">
+                <div id="post-container">
         
                 </div>    
             </div>
@@ -619,14 +619,14 @@ async function showGaianProfilePage(gaianID){
 
         const sortPosts = (sortBy) => {
             if (sortBy === 'last_updated') {
-                
+                posts.sort((post1,post2) => compareDateTime(post1,post2,'last_updated'))
                 sortByText.textContent = "Last Updated"
             }else if (sortBy === 'new') {
-                posts.sort((post1, post2) => comparePosts(post1, post2));
+                posts.sort((post1,post2) => compareDateTime(post1,post2,'asc'))
                 console.log(posts)
                 sortByText.textContent = "New"
             }else if (sortBy === 'old') {
-                posts.sort((post1, post2) => comparePosts(post2, post1));
+                posts.sort((post1,post2) => compareDateTime(post1,post2,'desc'))
                 console.log(posts)
                 sortByText.textContent = "Old"
             }
@@ -653,15 +653,31 @@ async function showGaianProfilePage(gaianID){
 
 }
 
-function comparePosts(post1, post2) {
-    const date1 = new Date(post1.post_date + 'T' + post1.post_time);
-    const date2 = new Date(post2.post_date + 'T' + post2.post_time);
+
+function compareDateTime(obj1, obj2, sortOrder = 'asc') {
+    if(sortOrder === 'last_updated'){
+        const dateTime1 = obj1.updated_date + ' ' + obj1.updated_time
+        const dateTime2 = obj2.updated_date + ' ' + obj2.updated_time
+        return dateTime2.localeCompare(dateTime1);
+    }else{
+        const dateTime1 = obj1.post_date + ' ' + obj1.post_time;
+        const dateTime2 = obj2.post_date + ' ' + obj2.post_time;
+        
+        
+        if (sortOrder === 'asc') {
+            return dateTime2.localeCompare(dateTime1);
+        } else {
+            return dateTime1.localeCompare(dateTime2);
+        }
+    }
     
-    return date1 - date2;
 }
+
 
 function renderGaianPosts(gaian,posts,board){
     if (posts.length > 0) {
+        board.classList.add("row")
+        board.classList.add("row-cols-4")
         for (const post of posts) {
 
             // Convert the ISO date string to a Date object
