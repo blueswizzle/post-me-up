@@ -108,7 +108,7 @@ async function populatePostBoard(postBoard) {
 
            
             const postHTML = `
-                <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-4 w-50 post" id=${post.post_id}>
+                <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-4 w-50 post" data-post-id=${post.post_id}>
                     <p class="fw-bold">@${post.username}</p>
                     <p class="overflow-hidden">${post.title}</p>
                     <p class="fs-6 fw-lighter">${createdPostDate} <span>${hours}:${minutes} ${ampm}</span></p>
@@ -123,7 +123,7 @@ async function populatePostBoard(postBoard) {
         }
         document.querySelectorAll('.post').forEach(box =>{
             box.addEventListener('click', ()=>{
-                window.location.hash = `#post/${box.id}`
+                window.location.hash = `#post/${box.getAttribute('data-post-id')}`
             })
         })
         
@@ -287,7 +287,7 @@ async function showGaiansPage(){
         elements.forEach((element) =>{
             element.addEventListener('click', (e)=>{
                 let gaianID = e.target.closest('.gaian').getAttribute('data-gaian-id')
-                console.log(gaianID)
+                window.location.hash = `#gaian/${gaianID}`
             })
         })
         
@@ -557,11 +557,159 @@ function showCreateGaianPage(){
 
 }
 
-function showGaianProfilePage(){
 
+async function getGaianProfileData(gaianID){
+    try {
+        const response = await fetch(`http://localhost:4000/gaians/${gaianID}`, {
+            method:'GET',
+            headers:{
+                'Content-Type':'applicatin/json'
+            }
+        })
+
+        if(response.ok){
+            const data = await response.json()
+            return data;
+        }else{
+            const errorData = await response.json()
+            return errorData;
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function showGaianProfilePage(gaianID){
+    try {
+        const {gaian,posts} = await getGaianProfileData(gaianID)
+        mainContainer. innerHTML = ''
+        const child = `
+            <div class="container mt-5">
+                <div class="row">
+                    <div class="col-12">
+                        <h2>${gaian.username}'s Profile</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <h4>Total Posts: ${posts.length}</h4>
+                    </div>
+                </div>
+                <hr>
+                <div class="dropdown my-4">
+                    <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sort by: <span id="sort-by-text">Last Updated</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-sortby="last_updated">Last Updated</a></li>
+                        <li><a class="dropdown-item" href="#" data-sortby="new">New</a></li>
+                        <li><a class="dropdown-item" href="#" data-sortby="old">Old</a></li>
+                    </ul>
+                </div>
+                <div class="row row-cols-4" id = "post-container">
+        
+                </div>    
+            </div>
+        
+        `
+        mainContainer.innerHTML += child
+        let board = document.getElementById('post-container')
+        const sortByText = document.getElementById('sort-by-text')
+
+
+        const sortPosts = (sortBy) => {
+            if (sortBy === 'last_updated') {
+                
+                sortByText.textContent = "Last Updated"
+            }else if (sortBy === 'new') {
+                posts.sort((post1, post2) => comparePosts(post1, post2));
+                console.log(posts)
+                sortByText.textContent = "New"
+            }else if (sortBy === 'old') {
+                posts.sort((post1, post2) => comparePosts(post2, post1));
+                console.log(posts)
+                sortByText.textContent = "Old"
+            }
+            board.innerHTML = ''
+            renderGaianPosts(gaian,posts,board)
+        };
+
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault()
+                const sortBy = item.getAttribute('data-sortby');
+                sortPosts(sortBy);
+            });
+        });
+
+        renderGaianPosts(gaian,posts,board)
+        
+    } catch (error) {
+        console.log(error)
+    }
+   
+    
+    
 
 }
 
+function comparePosts(post1, post2) {
+    const date1 = new Date(post1.post_date + 'T' + post1.post_time);
+    const date2 = new Date(post2.post_date + 'T' + post2.post_time);
+    
+    return date1 - date2;
+}
+
+function renderGaianPosts(gaian,posts,board){
+    if (posts.length > 0) {
+        for (const post of posts) {
+
+            // Convert the ISO date string to a Date object
+            const postDate = new Date(post.updated_date);
+
+            // Format the date
+            const updatedPostDate = new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }).format(postDate);
+
+            let time = post.updated_time
+            const { hours, minutes, ampm } = convertTimeToHoursMinutes(time);
+
+           
+            const postHTML = `
+                <div class="col">
+                    <div class="container-sm d-sm-flex flex-column border border-black my-4 text-break post" data-post-id=${post.id}>
+                        <p class="fw-bold">@${post.username}</p>
+                        <p class="overflow-hidden">${post.title}</p>
+                        <p class="fs-6 fw-lighter"> <span class= "fst-italic" >last updated</span>: ${updatedPostDate} <span>${hours}:${minutes} ${ampm}</span></p>
+                    </div>
+                </div>
+            `;
+
+
+           
+
+            
+            board.innerHTML += postHTML;
+        }
+        document.querySelectorAll('.post').forEach(box =>{
+            box.addEventListener('click', ()=>{
+                window.location.hash = `#post/${box.getAttribute('data-post-id')}`
+            })
+        })
+        
+        
+    } else {
+        const postHTML = `
+            <h1 class="text-center"> ${gaian.username} hasn't created any posts yet! </h1>
+
+         `;
+
+        board.innerHTML += postHTML
+    }
+}
 
 
 function selectPageView() {
@@ -572,7 +720,7 @@ function selectPageView() {
       showPostDetailsPage(postID);
     } else if(hash.startsWith('#gaian/')){
         const gaianID = hash.substring(7)
-        console.log(gaianID)
+        showGaianProfilePage(gaianID)
     } else {
       switch (hash) {
         case '#posts':
@@ -592,8 +740,8 @@ function selectPageView() {
           break;
       }
     }
-  }
+}
   
-  window.addEventListener('hashchange', selectPageView);
+window.addEventListener('hashchange', selectPageView);
 
-  selectPageView();
+selectPageView();

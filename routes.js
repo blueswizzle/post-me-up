@@ -19,25 +19,33 @@ router.get('/gaians', async(req,res)=>{
 })
 
 // GET A SPECIFIC GAIAN
-router.get('/gaians/:id', async (req,res)=>{
+router.get('/gaians/:id', async (req, res) => {
     try {
-        const id= req.params.id
+        const id = req.params.id;
 
-        const gaian = await pool.query(
-            'SELECT * FROM gaian WHERE gaian.id= $1', [id]
-        )
-        if (gaian.rows.length ===1) {
-            return res.status(200).json(gaian.rows[0])
+        const gaianQuery = await pool.query(
+            'SELECT * FROM gaian WHERE id = $1;', [id]
+        );
+
+        if (gaianQuery.rows.length === 1) {
+            const gaian = gaianQuery.rows[0];
+
+            const postsQuery = await pool.query(
+                'SELECT p.*, g.username AS username FROM post p JOIN gaian g ON g.id = p.gaian_id WHERE gaian_id = $1 ORDER BY p.updated_date DESC, p.updated_time DESC;', [id]
+            );
+
+            const posts = postsQuery.rows;
+
+            return res.status(200).json({ gaian, posts });
         } else {
-            return res.status(404).json({error:"Gaian not found"})
+            return res.status(404).json({ error: "Gaian not found" });
         }
     } catch (error) {
-        console.log(error.message)
-        return res.status(500).json(error)
+        console.error("Error fetching Gaian:", error.message);
+        return res.status(500).json({ error: "Internal server error" });
     }
+});
 
-
-})
 
 
 // SELECT ALL POSTS FROM DATABASE
@@ -137,7 +145,7 @@ router.get('/gaian/:id/posts',async (req,res)=>{
 
     } catch (error) {
         console.log(error)
-        return res.status(500).json(error)
+        return res.status(500).json("An internal server error occured")
     }
 })
 
@@ -156,7 +164,7 @@ router.get('/posts/:search', async (req, res) => {
         return res.status(200).json({ message: 'Matching posts', posts: matchingPosts.rows });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json("An internal server error occured")
     }
 });
 
