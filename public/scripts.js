@@ -608,10 +608,9 @@ async function showGaianProfilePage(gaianID){
                         <li><a class="dropdown-item" href="#" data-sortby="old">Old</a></li>
                     </ul>
                 </div>
-                <div class="container">
-                    <div id="post-container">
+                
+                <div id="post-container">
             
-                    </div>
                 </div>
                 
                 <div class="my-5">
@@ -631,11 +630,9 @@ async function showGaianProfilePage(gaianID){
                 sortByText.textContent = "Recently Updated"
             }else if (sortBy === 'new') {
                 posts.sort((post1,post2) => compareDateTime(post1,post2,'asc'))
-                console.log(posts)
                 sortByText.textContent = "New"
             }else if (sortBy === 'old') {
                 posts.sort((post1,post2) => compareDateTime(post1,post2,'desc'))
-                console.log(posts)
                 sortByText.textContent = "Old"
             }
             board.innerHTML = ''
@@ -684,32 +681,28 @@ function compareDateTime(obj1, obj2, sortOrder = 'asc') {
 
 function renderGaianPosts(gaian,posts,board){
     if (posts.length > 0) {
-        board.classList.add("row")
-        board.classList.add("row-cols-4")
         for (const post of posts) {
 
             // Convert the ISO date string to a Date object
-            const postDate = new Date(post.updated_date);
+            const postDate = new Date(post.post_date);
 
             // Format the date
-            const updatedPostDate = new Intl.DateTimeFormat('en-US', {
+            const postedOnDate = new Intl.DateTimeFormat('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             }).format(postDate);
 
-            let time = post.updated_time
+            let time = post.post_time
             const { hours, minutes, ampm } = convertTimeToHoursMinutes(time);
 
            
             const postHTML = `
-                <div class="col">
                     <div class="container-sm d-sm-flex flex-column border border-black my-2 text-break post" data-post-id=${post.id}>
                         <p class="fw-bold">@${post.username}</p>
                         <p class="overflow-hidden">${post.title}</p>
-                        <p class="fs-6 fw-lighter"> <span class= "fst-italic" >last updated</span>: ${updatedPostDate} <span>${hours}:${minutes} ${ampm}</span></p>
+                        <p class="fs-6 fw-lighter"> <span class= "fst-italic" >Posted On</span>: ${postedOnDate} <span>${hours}:${minutes} ${ampm}</span></p>
                     </div>
-                </div>
             `;
 
 
