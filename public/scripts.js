@@ -329,7 +329,6 @@ async function showPostDetailsPage(id) {
     let postID = id;
     try {
         const post = await getPostDetails(postID);
-
         if (post) {
             const postDate = new Date(post.post_date);
             const createdPostDate = new Intl.DateTimeFormat('en-US', {
@@ -380,7 +379,7 @@ async function showPostDetailsPage(id) {
                         <div class="card mt-5">
                             <div class="card-body">
                                 <h5 class="card-title post-details">${post.title}</h5>
-                                <p class="card-text"> @${post.username}</p>
+                                <p class="card-text post-username" data-gaian-id=${post.gaian_id}> @${post.username}</p>
                                 <p class="card-text ">Posted on: ${createdPostDate}  ${hours}:${minutes} ${ampm}</p>
                                 <p class="card-text ">Last Updated: ${updatedPostDate}  ${updated_time.hours}:${updated_time.minutes} ${updated_time.ampm}</p>
                                 <hr>
@@ -415,7 +414,10 @@ async function showPostDetailsPage(id) {
                 }
             })
             
-            
+            document.querySelector('.post-username').addEventListener('click', (e)=>{
+                let gaianID = e.target.getAttribute('data-gaian-id')
+                window.location.hash = `#gaian/${gaianID}`
+            })
         } else {
             console.log("Failed to get post details");
             
