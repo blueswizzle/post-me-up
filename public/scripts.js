@@ -1,10 +1,12 @@
+const PORT = 4000
 const mainContainer = document.getElementById('main-container')
+
 
 async function createGaian(formData){
     try {
         console.log(formData)
         let message = document.getElementById('create-gaian-message')
-        const response = await fetch('http://localhost:4000/gaians', {
+        const response = await fetch(`http://localhost:${PORT}/gaians`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -36,7 +38,7 @@ async function createPost(formData){
     try {
         let message = document.getElementById('create-post-message')
         console.log(formData)
-        const response = await fetch('http://localhost:4000/gaian/post', {
+        const response = await fetch(`http://localhost:${PORT}/gaian/post`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -68,7 +70,7 @@ async function createPost(formData){
 
 async function getAllPosts() {
     try {
-        const response = await fetch('http://localhost:4000/posts', {
+        const response = await fetch(`http://localhost:${PORT}/posts`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -140,7 +142,7 @@ async function populatePostBoard(postBoard) {
 
 async function deletePost(postID) {
     try {
-        const response = await fetch(`http://localhost:4000/posts/${postID}`, {
+        const response = await fetch(`http://localhost:${PORT}/posts/${postID}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -163,7 +165,7 @@ async function deletePost(postID) {
 
 async function getPostDetails(postID){
     try {
-        const response = await fetch(`http://localhost:4000/posts/${postID}`,{
+        const response = await fetch(`http://localhost:${PORT}/posts/${postID}`,{
             method: 'GET',
             headers:{
                 'Content-Type':'application/json'
@@ -184,7 +186,7 @@ async function getPostDetails(postID){
 
 async function getAllGaians() {
     try {
-        const response = await fetch('http://localhost:4000/gaians', {
+        const response = await fetch(`http://localhost:${PORT}/gaians`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -475,7 +477,7 @@ function editPostDetails(){
             }
             console.log(data)
             let postID = window.location.hash.substring(6);
-            const response = await fetch(`http://localhost:4000/posts/${postID}`, {
+            const response = await fetch(`http://localhost:${PORT}/posts/${postID}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
@@ -562,7 +564,7 @@ function showCreateGaianPage(){
 
 async function getGaianProfileData(gaianID){
     try {
-        const response = await fetch(`http://localhost:4000/gaians/${gaianID}`, {
+        const response = await fetch(`http://localhost:${PORT}/gaians/${gaianID}`, {
             method:'GET',
             headers:{
                 'Content-Type':'applicatin/json'
