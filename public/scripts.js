@@ -1,6 +1,6 @@
 const PORT = 4000
 const mainContainer = document.getElementById('main-container')
-
+const post_display_limit = 10;
 
 async function createGaian(formData){
     try {
@@ -91,53 +91,11 @@ async function getAllPosts() {
 
 async function populatePostBoard(postBoard) {
     let posts = await getAllPosts();
-
-    if (posts.length > 0) {
-        for (const post of posts) {
-
-            // Convert the ISO date string to a Date object
-            const postDate = new Date(post.post_date);
-
-            // Format the date
-            const createdPostDate = new Intl.DateTimeFormat('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            }).format(postDate);
-
-            let time = post.post_time
-            const { hours, minutes, ampm } = convertTimeToHoursMinutes(time);
-
-           
-            const postHTML = `
-                <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-4 w-50 post" data-post-id=${post.post_id}>
-                    <p class="fw-bold">@${post.username}</p>
-                    <p class="overflow-hidden">${post.title}</p>
-                    <p class="fs-6 fw-lighter">${createdPostDate} <span>${hours}:${minutes} ${ampm}</span></p>
-                </div>
-            `;
-
-
-           
-
-            
-            postBoard.innerHTML += postHTML;
-        }
-        document.querySelectorAll('.post').forEach(box =>{
-            box.addEventListener('click', ()=>{
-                window.location.hash = `#post/${box.getAttribute('data-post-id')}`
-            })
-        })
-        
-        
-    } else {
-        const postHTML = `
-            <h1 class="text-center my-5"> No Posts Available </h1>
-
-         `;
-
-        postBoard.innerHTML += postHTML
+    if(posts.length > post_display_limit){
+        const pagination = createPaginationElements(posts)
+        postBoard.appendChild(pagination)
     }
+    
 }
 
 async function deletePost(postID) {
@@ -233,6 +191,7 @@ function showHomePage(){
 }
 
 async function showPostsPage(){
+    const posts = await getAllPosts()
     mainContainer.innerHTML = ''
     const child = document.createElement('div');
 
@@ -241,8 +200,27 @@ async function showPostsPage(){
         <div id="post-board" class="container-lg d-md-flex flex-column justifiy-content-center align-items-center">
     `
     mainContainer.appendChild(child)
+    const postBoard = document.getElementById('post-board')
+    if(posts.length > post_display_limit){
+        const pagination = createPaginationElements(posts)
+        mainContainer.append(pagination)
 
-    await populatePostBoard(child);
+        const pagination_nav = document.querySelectorAll('.page-link')
+        pagination_nav.forEach((page_number) =>{
+            page_number.addEventListener('click', (e)=>{
+                let clicked_index = e.target.textContent
+                console.log(clicked_index)
+                changeDisplayedPosts(clicked_index,posts,postBoard)
+            })
+        })
+
+        renderPosts(posts,postBoard,0,post_display_limit)
+    }else{
+        renderPosts(posts,postBoard,0,posts.length)
+    }
+
+    
+    
 }
 
 async function showGaiansPage(){
@@ -587,11 +565,11 @@ async function getGaianProfileData(gaianID){
 async function showGaianProfilePage(gaianID){
     try {
         const {gaian,posts} = await getGaianProfileData(gaianID)
-        mainContainer. innerHTML = ''
+        mainContainer.innerHTML = ''
         const child = `
             <div class="container mt-5">
                 <div class="row">
-                    <div class="col-12">
+                    <div class="col-12 text-center">
                         <h2>${gaian.username}'s Profile</h2>
                     </div>
                 </div>
@@ -602,8 +580,7 @@ async function showGaianProfilePage(gaianID){
                 </div>
                 <div class="my-2">
                     <button type="button" class="btn btn-danger">Delete Gaian</button>
-                </div>   
-                <hr>
+                </div>
                 <div class="dropdown my-4">
                     <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Sort by: <span id="sort-by-text">Recently Updated</span>
@@ -626,8 +603,9 @@ async function showGaianProfilePage(gaianID){
         
         let board = document.getElementById('post-container')
         const sortByText = document.getElementById('sort-by-text')
-
-
+       
+        const pagination = createPaginationElements(posts)
+        mainContainer.appendChild(pagination);
         const sortPosts = (sortBy) => {
             if (sortBy === 'recently_updated') {
                 posts.sort((post1,post2) => compareDateTime(post1,post2,'recently_updated'))
@@ -640,7 +618,7 @@ async function showGaianProfilePage(gaianID){
                 sortByText.textContent = "Old"
             }
             board.innerHTML = ''
-            renderGaianPosts(gaian,posts,board)
+            renderPosts(posts,board,0,post_display_limit)
         };
 
         document.querySelectorAll('.dropdown-item').forEach(item => {
@@ -651,61 +629,39 @@ async function showGaianProfilePage(gaianID){
             });
         });
 
-        renderGaianPosts(gaian,posts,board)
+        const pagination_nav = document.querySelectorAll('.page-link')
+        pagination_nav.forEach((page_number) =>{
+            page_number.addEventListener('click', (e)=>{
+                let clicked_index = e.target.textContent
+                console.log(clicked_index)
+                changeDisplayedPosts(clicked_index,posts,board)
+            })
+        })
+
+
+        renderPosts(posts,board,0,post_display_limit)
         
     } catch (error) {
         console.log(error)
     }
-   
-    
-    
-
 }
 
-function createPaginationElements(posts){
+function createPaginationElements(posts) {
     const pagination = document.createElement('nav');
-    const ul_list = document.createElement('ul');
-    ul_list.classList.add('pagination');
-        
-    // Calculate the number of pages
-    const num_pages = Math.ceil(posts.length / 10);
-        
-    // Create "Previous" link
-    const prev_li = document.createElement('li');
-    prev_li.classList.add('page-item');
-    const prev_link = document.createElement('a');
-    prev_link.classList.add('page-link');
-    prev_link.href = '#';
-    prev_link.textContent = 'Previous';
-    prev_li.appendChild(prev_link);
-    ul_list.appendChild(prev_li);
-        
-    // Create page number links
-    for (let i = 1; i <= num_pages; i++) {
-        const li_element = document.createElement('li');
-        li_element.classList.add('page-item');
-        const page_link = document.createElement('a');
-        page_link.classList.add('page-link');
-        page_link.href = '#';
-        page_link.textContent = i;
-        li_element.appendChild(page_link);
-        ul_list.appendChild(li_element);
-    }
-        
-    // Create "Next" link
-    const next_li = document.createElement('li');
-    next_li.classList.add('page-item');
-    const next_link = document.createElement('a');
-    next_link.classList.add('page-link');
-    next_link.href = '#';
-    next_link.textContent = 'Next';
-    next_li.appendChild(next_link);
-    ul_list.appendChild(next_li);
-        
-    pagination.appendChild(ul_list);
-
-    return pagination
+    pagination.innerHTML = `
+        <ul class="pagination">
+            ${
+                Array.from({ length: Math.ceil(posts.length / 10) }, (_, i) => `
+                    <li class="page-item">
+                        <p class="page-link">${i + 1}</p>
+                    </li>
+                `).join('')
+            }
+        </ul>
+    `;
+    return pagination;
 }
+
 
 function compareDateTime(obj1, obj2, sortOrder = 'asc') {
     if(sortOrder === 'recently_updated'){
@@ -727,12 +683,15 @@ function compareDateTime(obj1, obj2, sortOrder = 'asc') {
 }
 
 
-function renderGaianPosts(gaian,posts,board){
+function renderPosts(posts,board,starting_index,ending_index){
+    board.innerHTML = ''
     if (posts.length > 0) {
-        for (const post of posts) {
+        
+       
+        for (let i = starting_index; i< ending_index; i++) {
 
             // Convert the ISO date string to a Date object
-            const postDate = new Date(post.post_date);
+            const postDate = new Date(posts[i].post_date);
 
             // Format the date
             const postedOnDate = new Intl.DateTimeFormat('en-US', {
@@ -741,47 +700,46 @@ function renderGaianPosts(gaian,posts,board){
                 day: 'numeric'
             }).format(postDate);
 
-            let time = post.post_time
+            let time = posts[i].post_time
             const { hours, minutes, ampm } = convertTimeToHoursMinutes(time);
 
            
             const postHTML = `
-                    <hr>
-                    <div class="container-sm d-sm-flex flex-column my-2 text-break post" data-post-id=${post.id}>
-                        <p class="fw-bold">@${post.username}</p>
-                        <p class="overflow-hidden">${post.title}</p>
+                    <div class="container-sm d-sm-flex flex-column my-2 border-top text-break post" data-post-id=${posts[i].id}>
+                        <p class="fw-light">@${posts[i].username}</p>
+                        <p class="overflow-hidden fs-5 fw-bold">${posts[i].title}</p>
+                        <p class="overflow-hidden fs-6">${posts[i].content.substring(0,100)}</p>
                         <p class="fs-6 fw-lighter"> <span class= "fst-italic" >Posted On</span>: ${postedOnDate} <span>${hours}:${minutes} ${ampm}</span></p>
                     </div>
                     
+                    
             `;
-
-
-           
-
-            
-            board.innerHTML += postHTML;
+            board.innerHTML += postHTML; 
         }
         document.querySelectorAll('.post').forEach(box =>{
             box.addEventListener('click', ()=>{
                 window.location.hash = `#post/${box.getAttribute('data-post-id')}`
             })
         })
-        
-        if (posts.length > 10) { 
-            const pagination = createPaginationElements(posts)
-            board.appendChild(pagination);
-        }
-        
     } else {
         const postHTML = `
-            <h1 class="text-center"> ${gaian.username} hasn't created any posts yet! </h1>
-
+            <h1 class="text-center my-5"> No posts to show :( </h1>
          `;
 
         board.innerHTML += postHTML
     }
 }
 
+function changeDisplayedPosts(clickedIndex,all_posts,post_board){
+    const starting_index = (clickedIndex * post_display_limit) -10;
+    const ending_index = starting_index + post_display_limit;
+    if(all_posts.length < ending_index){
+        renderPosts(all_posts,post_board,starting_index,all_posts.length)
+    }else{
+        renderPosts(all_posts,post_board,starting_index,ending_index)
+    }
+    
+}
 
 function selectPageView() {
     const hash = window.location.hash;

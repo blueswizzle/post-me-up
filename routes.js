@@ -52,7 +52,7 @@ router.get('/gaians/:id', async (req, res) => {
 router.get('/posts', async (req,res)=>{
     try {
         const allPosts = await pool.query(
-            'SELECT gaian.id AS gaian_id, gaian.username, post.id AS post_id, post.title,post.content,post.post_date,post.post_time FROM gaian JOIN post ON gaian.id= post.gaian_id ORDER BY post.post_date DESC, post.post_time DESC;'
+            'SELECT gaian.id AS gaian_id, gaian.username, post.id AS id, post.title,post.content,post.post_date,post.post_time FROM gaian JOIN post ON gaian.id= post.gaian_id ORDER BY post.post_date DESC, post.post_time DESC;'
         )
         return res.status(200).json({message:'Got all posts', posts:allPosts.rows})
     } catch (error) {
@@ -189,7 +189,7 @@ router.patch('/posts/:id', async (req,res) =>{
         if(error.code === '22001'){
             return res.status(400).json("Title is too long!")
         }
-        return res.status(500).json( error.value);
+        return res.status(500).json("An Internal Server Error Occurred");
     }
 })
 
