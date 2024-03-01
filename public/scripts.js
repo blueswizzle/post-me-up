@@ -89,15 +89,6 @@ async function getAllPosts() {
     }
 }
 
-async function populatePostBoard(postBoard) {
-    let posts = await getAllPosts();
-    if(posts.length > post_display_limit){
-        const pagination = createPaginationElements(posts)
-        postBoard.appendChild(pagination)
-    }
-    
-}
-
 async function deletePost(postID) {
     try {
         const response = await fetch(`http://localhost:${PORT}/posts/${postID}`, {
@@ -571,15 +562,15 @@ async function showGaianProfilePage(gaianID){
                 <div class="row">
                     <div class="col-12 text-center">
                         <h2>${gaian.username}'s Profile</h2>
+                        <div class="mt-5">
+                            <button type="button" class="btn btn-danger">Delete Gaian</button>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12">
                         <h4>Total Posts: ${posts.length}</h4>
                     </div>
-                </div>
-                <div class="my-2">
-                    <button type="button" class="btn btn-danger">Delete Gaian</button>
                 </div>
                 <div class="dropdown my-4">
                     <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -594,7 +585,9 @@ async function showGaianProfilePage(gaianID){
                 
                 <div id="post-container">
             
-                </div>   
+                </div>
+                
+                
             </div>
         
         `
