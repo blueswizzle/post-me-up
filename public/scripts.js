@@ -363,7 +363,7 @@ async function showPostDetailsPage(id) {
                                 <p class="card-text ">Posted on: ${createdPostDate}  ${hours}:${minutes} ${ampm}</p>
                                 <p class="card-text ">Last Updated: ${updatedPostDate}  ${updated_time.hours}:${updated_time.minutes} ${updated_time.ampm}</p>
                                 <hr>
-                                <p class="card-text post-details">${post.content} </p>
+                                <p class="card-text post-details" style="white-space: pre-wrap;">${post.content} </p>
                                 <div class="text-center mt-4" id="post-button-options">
                                     <button type="button" id="edit-post" class="btn btn-primary mx-4">Edit</button>
                                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cofirmPostDeletionModal">Delete</button>
