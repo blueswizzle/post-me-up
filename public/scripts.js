@@ -200,7 +200,6 @@ async function showPostsPage(){
         pagination_nav.forEach((page_number) =>{
             page_number.addEventListener('click', (e)=>{
                 let clicked_index = e.target.textContent
-                console.log(clicked_index)
                 changeDisplayedPosts(clicked_index,posts,postBoard)
             })
         })
@@ -701,7 +700,7 @@ function renderPosts(posts,board,starting_index,ending_index){
                     <div class="container-sm d-sm-flex flex-column my-2 border-top text-break post" data-post-id=${posts[i].id}>
                         <p class="fw-light">@${posts[i].username}</p>
                         <p class="overflow-hidden fs-5 fw-bold">${posts[i].title}</p>
-                        <p class="overflow-hidden fs-6">${posts[i].content.substring(0,100)}</p>
+                        <p class="overflow-hidden fs-6">${posts[i].content.substring(0,100)}...</p>
                         <p class="fs-6 fw-lighter"> <span class= "fst-italic" >Posted On</span>: ${postedOnDate} <span>${hours}:${minutes} ${ampm}</span></p>
                     </div>
                     
