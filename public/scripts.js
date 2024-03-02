@@ -189,10 +189,12 @@ async function showPostsPage(){
     
         child.innerHTML = `
             <h1 class="text-center">Viewing All Posts</h1>
+            ${createSortPostsButton().outerHTML}
             <div id="post-board" class="container-lg d-md-flex flex-column justifiy-content-center align-items-center">
         `
         mainContainer.appendChild(child)
         const postBoard = document.getElementById('post-board')
+        const sortByText = document.getElementById('sort-by-text')
         if(posts.length > post_display_limit){
             const pagination = createPaginationElements(posts,postBoard)
             mainContainer.append(pagination)
@@ -200,9 +202,35 @@ async function showPostsPage(){
         }else{
             renderPosts(posts,postBoard,0,posts.length,1)
         }
+
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault()
+                const sortBy = item.getAttribute('data-sortby');
+                sortPosts(posts,sortBy,sortByText,postBoard);
+            });
+        });
     }else{
         showErrorPage()
     }
+}
+
+function createSortPostsButton(){
+    let sortContainer = document.createElement('div')
+    sortContainer.classList.add('dropdown')
+    sortContainer.classList.add('my-4')
+    sortContainer.innerHTML = `
+        <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Sort by: <span id="sort-by-text">New</span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" data-sortby="recently_updated">Recently Updated</a></li>
+            <li><a class="dropdown-item" href="#" data-sortby="new">New</a></li>
+            <li><a class="dropdown-item" href="#" data-sortby="old">Old</a></li>
+        </ul>
+    `
+
+    return sortContainer
 }
 
 async function showGaiansPage(){
@@ -570,16 +598,7 @@ async function showGaianProfilePage(gaianID){
                             <h4>Total Posts: ${posts.length}</h4>
                         </div>
                     </div>
-                    <div class="dropdown my-4">
-                        <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Sort by: <span id="sort-by-text">Recently Updated</span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" data-sortby="recently_updated">Recently Updated</a></li>
-                            <li><a class="dropdown-item" href="#" data-sortby="new">New</a></li>
-                            <li><a class="dropdown-item" href="#" data-sortby="old">Old</a></li>
-                        </ul>
-                    </div>
+                    ${createSortPostsButton().outerHTML}
                     
                     <div id="post-container">
                 
@@ -597,26 +616,12 @@ async function showGaianProfilePage(gaianID){
            
             const pagination = createPaginationElements(posts,board)
             mainContainer.appendChild(pagination);
-            const sortPosts = (sortBy) => {
-                if (sortBy === 'recently_updated') {
-                    posts.sort((post1,post2) => compareDateTime(post1,post2,'recently_updated'))
-                    sortByText.textContent = "Recently Updated"
-                }else if (sortBy === 'new') {
-                    posts.sort((post1,post2) => compareDateTime(post1,post2,'asc'))
-                    sortByText.textContent = "New"
-                }else if (sortBy === 'old') {
-                    posts.sort((post1,post2) => compareDateTime(post1,post2,'desc'))
-                    sortByText.textContent = "Old"
-                }
-                board.innerHTML = ''
-                renderPosts(posts,board,0,post_display_limit,1)
-            };
-    
+
             document.querySelectorAll('.dropdown-item').forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.preventDefault()
                     const sortBy = item.getAttribute('data-sortby');
-                    sortPosts(sortBy);
+                    sortPosts(posts,sortBy,sortByText,board);
                 });
             });
     
@@ -680,10 +685,8 @@ function compareDateTime(obj1, obj2, sortOrder = 'asc') {
 function renderPosts(posts,board,starting_index,ending_index,currentIndex){
     board.innerHTML = ''
     if (posts.length > 0) {
-        
-       
-        for (let i = starting_index; i< ending_index; i++) {
-
+        const final_ending_index = Math.min(ending_index,posts.length);
+        for (let i = starting_index; i< final_ending_index; i++) {
             // Convert the ISO date string to a Date object
             const postDate = new Date(posts[i].post_date);
 
@@ -739,6 +742,29 @@ function changeDisplayedPosts(clickedIndex,all_posts,post_board){
         renderPosts(all_posts,post_board,starting_index,ending_index,clickedIndex)
     }
     
+}
+
+function sortPosts(posts,sortBy,sortByText,postBoard){
+    switch (sortBy) {
+        case 'recently_updated':
+            posts.sort((post1, post2) => compareDateTime(post1, post2, 'recently_updated'));
+            sortByText.textContent = "Recently Updated";
+            break;
+        case 'new':
+            posts.sort((post1, post2) => compareDateTime(post1, post2, 'asc'));
+            sortByText.textContent = "New";
+            break;
+        case 'old':
+            posts.sort((post1, post2) => compareDateTime(post1, post2, 'desc'));
+            sortByText.textContent = "Old";
+            break;
+        default:
+            
+            break;
+    }
+    
+    postBoard.innerHTML = ''
+    renderPosts(posts,postBoard,0,post_display_limit,1)
 }
 
 function showErrorPage(){
