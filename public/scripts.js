@@ -196,9 +196,9 @@ async function showPostsPage(){
         if(posts.length > post_display_limit){
             const pagination = createPaginationElements(posts,postBoard)
             mainContainer.append(pagination)
-            renderPosts(posts,postBoard,0,post_display_limit)
+            renderPosts(posts,postBoard,0,post_display_limit,1)
         }else{
-            renderPosts(posts,postBoard,0,posts.length)
+            renderPosts(posts,postBoard,0,posts.length,1)
         }
     }else{
         showErrorPage()
@@ -609,7 +609,7 @@ async function showGaianProfilePage(gaianID){
                     sortByText.textContent = "Old"
                 }
                 board.innerHTML = ''
-                renderPosts(posts,board,0,post_display_limit)
+                renderPosts(posts,board,0,post_display_limit,1)
             };
     
             document.querySelectorAll('.dropdown-item').forEach(item => {
@@ -620,7 +620,7 @@ async function showGaianProfilePage(gaianID){
                 });
             });
     
-            renderPosts(posts,board,0,post_display_limit)
+            renderPosts(posts,board,0,post_display_limit,1)
         }else{
             showErrorPage();
         }
@@ -646,15 +646,13 @@ function createPaginationElements(posts,postBoard) {
         // Adding event listener to the page link
         link.addEventListener('click', (e) => {
             const clicked_index = e.target.textContent;
-            sessionStorage.setItem('currentPaginationIndex', clicked_index)
             changeDisplayedPosts(clicked_index, posts, postBoard);
         });
 
         li.appendChild(link);
         ul.appendChild(li);
     }
-    // Sets pagination index to 1 i.e first page on initial loading
-    sessionStorage.setItem('currentPaginationIndex',1)
+
     pagination.appendChild(ul);
     return pagination;
 }
@@ -679,7 +677,7 @@ function compareDateTime(obj1, obj2, sortOrder = 'asc') {
 }
 
 
-function renderPosts(posts,board,starting_index,ending_index){
+function renderPosts(posts,board,starting_index,ending_index,currentIndex){
     board.innerHTML = ''
     if (posts.length > 0) {
         
@@ -719,12 +717,9 @@ function renderPosts(posts,board,starting_index,ending_index){
         })
 
         const displayingPageInfo = document.createElement('p')
-        const currentPaginationIndex = sessionStorage.getItem('currentPaginationIndex')
-        if(!currentPaginationIndex){
-            displayingPageInfo.innerHTML = `Displaying page 1 of ${Math.ceil(posts.length/post_display_limit)}`
-        }else{
-            displayingPageInfo.innerHTML = `Displaying page ${sessionStorage.getItem('currentPaginationIndex')} of ${Math.ceil(posts.length/post_display_limit)}`
-        }
+        
+        displayingPageInfo.innerHTML = `Displaying page ${currentIndex} of ${Math.ceil(posts.length/post_display_limit)}`
+        
         board.append(displayingPageInfo)
     } else {
         const postHTML = `
@@ -739,10 +734,9 @@ function changeDisplayedPosts(clickedIndex,all_posts,post_board){
     const starting_index = (clickedIndex * post_display_limit) -10;
     const ending_index = starting_index + post_display_limit;
     if(all_posts.length < ending_index){
-        sessionStorage.setItem('currentPaginationIndex',clickedIndex)
-        renderPosts(all_posts,post_board,starting_index,all_posts.length)
+        renderPosts(all_posts,post_board,starting_index,all_posts.length,clickedIndex)
     }else{
-        renderPosts(all_posts,post_board,starting_index,ending_index)
+        renderPosts(all_posts,post_board,starting_index,ending_index,clickedIndex)
     }
     
 }
