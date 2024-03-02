@@ -183,116 +183,114 @@ function showHomePage(){
 
 async function showPostsPage(){
     const posts = await getAllPosts()
-    mainContainer.innerHTML = ''
-    const child = document.createElement('div');
-
-    child.innerHTML = `
-        <h1 class="text-center">Viewing All Posts</h1>
-        <div id="post-board" class="container-lg d-md-flex flex-column justifiy-content-center align-items-center">
-    `
-    mainContainer.appendChild(child)
-    const postBoard = document.getElementById('post-board')
-    if(posts.length > post_display_limit){
-        const pagination = createPaginationElements(posts)
-        mainContainer.append(pagination)
-
-        const pagination_nav = document.querySelectorAll('.page-link')
-        pagination_nav.forEach((page_number) =>{
-            page_number.addEventListener('click', (e)=>{
-                let clicked_index = e.target.textContent
-                changeDisplayedPosts(clicked_index,posts,postBoard)
-            })
-        })
-
-        renderPosts(posts,postBoard,0,post_display_limit)
+    if(posts){
+        mainContainer.innerHTML = ''
+        const child = document.createElement('div');
+    
+        child.innerHTML = `
+            <h1 class="text-center">Viewing All Posts</h1>
+            <div id="post-board" class="container-lg d-md-flex flex-column justifiy-content-center align-items-center">
+        `
+        mainContainer.appendChild(child)
+        const postBoard = document.getElementById('post-board')
+        if(posts.length > post_display_limit){
+            const pagination = createPaginationElements(posts,postBoard)
+            mainContainer.append(pagination)
+            renderPosts(posts,postBoard,0,post_display_limit)
+        }else{
+            renderPosts(posts,postBoard,0,posts.length)
+        }
     }else{
-        renderPosts(posts,postBoard,0,posts.length)
+        showErrorPage()
     }
-
-    
-    
 }
 
 async function showGaiansPage(){
-    mainContainer.innerHTML = '';
-    const child = `
-    <h1 class="text-center">Viewing All Gaians</h1>
-        <div class="dropdown my-4">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Sort by: <span id="sort-by-text">A-Z</span>
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" data-sortby="a-z">A-Z</a></li>
-                <li><a class="dropdown-item" href="#" data-sortby="z-a">Z-A</a></li>
-                <li><a class="dropdown-item" href="#" data-sortby="posts-asc">Post ASC</a></li>
-                <li><a class="dropdown-item" href="#" data-sortby="posts-desc">Post DESC</a></li>
-            </ul>
-        </div>
-    <div class="container">
-        <div class="row row-cols-3"  id="gaian-board">
-        </div>
-    </div> 
-    `;
-    mainContainer.innerHTML += child
- 
-    const sortByText = document.getElementById('sort-by-text')
-    const board = document.getElementById('gaian-board');
-
     let gaians = await getAllGaians();
-
-    const renderGaians = () => {
-        board.innerHTML = '';
-        gaians.forEach(gaian => {
-            const element = `
-                <div class="col">
-                    <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-2 gaian" data-gaian-id="${gaian.id}">
-                        <p class="fw-bold text-center text-truncate">@${gaian.username}</p>
-                        <p class="fw-bold text-center text-truncate">Posts: ${gaian.total_posts}</p>
-                    </div>
-                </div>
-            `;
-            board.innerHTML += element;
-        });
-        let elements = document.querySelectorAll('.gaian')
-        elements.forEach((element) =>{
-            element.addEventListener('click', (e)=>{
-                let gaianID = e.target.closest('.gaian').getAttribute('data-gaian-id')
-                window.location.hash = `#gaian/${gaianID}`
-            })
-        })
+    if(gaians){
+        mainContainer.innerHTML = '';
+        const child = `
+        <h1 class="text-center">Viewing All Gaians</h1>
+            <div class="dropdown my-4">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Sort by: <span id="sort-by-text">A-Z</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-sortby="a-z">A-Z</a></li>
+                    <li><a class="dropdown-item" href="#" data-sortby="z-a">Z-A</a></li>
+                    <li><a class="dropdown-item" href="#" data-sortby="posts-asc">Post ASC</a></li>
+                    <li><a class="dropdown-item" href="#" data-sortby="posts-desc">Post DESC</a></li>
+                </ul>
+            </div>
+        <div class="container">
+            <div class="row row-cols-3"  id="gaian-board">
+            </div>
+        </div> 
+        `;
+        mainContainer.innerHTML += child
+     
+        const sortByText = document.getElementById('sort-by-text')
+        const board = document.getElementById('gaian-board');
+    
         
-    };
-
     
-    renderGaians();
-
+        const renderGaians = () => {
+            board.innerHTML = '';
+            gaians.forEach(gaian => {
+                const element = `
+                    <div class="col">
+                        <div class="container-sm d-sm-flex flex-column border border-secondary-subtle my-2 gaian" data-gaian-id="${gaian.id}">
+                            <p class="fw-bold text-center text-truncate">@${gaian.username}</p>
+                            <p class="fw-bold text-center text-truncate">Posts: ${gaian.total_posts}</p>
+                        </div>
+                    </div>
+                `;
+                board.innerHTML += element;
+            });
+            let elements = document.querySelectorAll('.gaian')
+            elements.forEach((element) =>{
+                element.addEventListener('click', (e)=>{
+                    let gaianID = e.target.closest('.gaian').getAttribute('data-gaian-id')
+                    window.location.hash = `#gaian/${gaianID}`
+                })
+            })
+            
+        };
     
-    const sortGaians = (sortBy) => {
-        if (sortBy === 'a-z') {
-            gaians.sort((a, b) => a.username.localeCompare(b.username));
-            sortByText.textContent = "A-Z"
-        }else if (sortBy === 'z-a') {
-            gaians.sort((a,b) => b.username.localeCompare(a.username))
-            sortByText.textContent = "Z-A"
-        }else if (sortBy === 'posts-asc') {
-            gaians.sort((a, b) => a.total_posts - b.total_posts);
-            sortByText.textContent = "Post asc"
-        }else if (sortBy === 'posts-desc'){
-            gaians.sort((a,b) => b.total_posts - a.total_posts);
-            sortByText.textContent = "Post desc"
-        }
         
         renderGaians();
-    };
-
     
-    document.querySelectorAll('.dropdown-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault()
-            const sortBy = item.getAttribute('data-sortby');
-            sortGaians(sortBy);
+        
+        const sortGaians = (sortBy) => {
+            if (sortBy === 'a-z') {
+                gaians.sort((a, b) => a.username.localeCompare(b.username));
+                sortByText.textContent = "A-Z"
+            }else if (sortBy === 'z-a') {
+                gaians.sort((a,b) => b.username.localeCompare(a.username))
+                sortByText.textContent = "Z-A"
+            }else if (sortBy === 'posts-asc') {
+                gaians.sort((a, b) => a.total_posts - b.total_posts);
+                sortByText.textContent = "Post asc"
+            }else if (sortBy === 'posts-desc'){
+                gaians.sort((a,b) => b.total_posts - a.total_posts);
+                sortByText.textContent = "Post desc"
+            }
+            
+            renderGaians();
+        };
+    
+        
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault()
+                const sortBy = item.getAttribute('data-sortby');
+                sortGaians(sortBy);
+            });
         });
-    });
+    }else{
+        showErrorPage()
+    }
+   
 }
 
 async function showPostDetailsPage(id) {
@@ -390,10 +388,10 @@ async function showPostDetailsPage(id) {
             })
         } else {
             console.log("Failed to get post details");
-            
+            showErrorPage()
         }
     } catch (error) {
-        console.log("Error:", error);
+        console.log(error)
     }
 }
 
@@ -555,105 +553,111 @@ async function getGaianProfileData(gaianID){
 async function showGaianProfilePage(gaianID){
     try {
         const {gaian,posts} = await getGaianProfileData(gaianID)
-        mainContainer.innerHTML = ''
-        const child = `
-            <div class="container mt-5">
-                <div class="row">
-                    <div class="col-12 text-center">
-                        <h2>${gaian.username}'s Profile</h2>
-                        <div class="mt-5">
-                            <button type="button" class="btn btn-danger">Delete Gaian</button>
+        if(gaian){
+            mainContainer.innerHTML = ''
+            const child = `
+                <div class="container mt-5">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h2>${gaian.username}'s Profile</h2>
+                            <div class="mt-5">
+                                <button type="button" class="btn btn-danger">Delete Gaian</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <h4>Total Posts: ${posts.length}</h4>
+                    <div class="row">
+                        <div class="col-12">
+                            <h4>Total Posts: ${posts.length}</h4>
+                        </div>
                     </div>
-                </div>
-                <div class="dropdown my-4">
-                    <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Sort by: <span id="sort-by-text">Recently Updated</span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" data-sortby="recently_updated">Recently Updated</a></li>
-                        <li><a class="dropdown-item" href="#" data-sortby="new">New</a></li>
-                        <li><a class="dropdown-item" href="#" data-sortby="old">Old</a></li>
-                    </ul>
-                </div>
+                    <div class="dropdown my-4">
+                        <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Sort by: <span id="sort-by-text">Recently Updated</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-sortby="recently_updated">Recently Updated</a></li>
+                            <li><a class="dropdown-item" href="#" data-sortby="new">New</a></li>
+                            <li><a class="dropdown-item" href="#" data-sortby="old">Old</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div id="post-container">
                 
-                <div id="post-container">
+                    </div>
+                    
+                    
+                </div>
             
-                </div>
-                
-                
-            </div>
-        
-        `
-        mainContainer.innerHTML += child
-        
-        
-        let board = document.getElementById('post-container')
-        const sortByText = document.getElementById('sort-by-text')
-       
-        const pagination = createPaginationElements(posts)
-        mainContainer.appendChild(pagination);
-        const sortPosts = (sortBy) => {
-            if (sortBy === 'recently_updated') {
-                posts.sort((post1,post2) => compareDateTime(post1,post2,'recently_updated'))
-                sortByText.textContent = "Recently Updated"
-            }else if (sortBy === 'new') {
-                posts.sort((post1,post2) => compareDateTime(post1,post2,'asc'))
-                sortByText.textContent = "New"
-            }else if (sortBy === 'old') {
-                posts.sort((post1,post2) => compareDateTime(post1,post2,'desc'))
-                sortByText.textContent = "Old"
-            }
-            board.innerHTML = ''
-            renderPosts(posts,board,0,post_display_limit)
-        };
-
-        document.querySelectorAll('.dropdown-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault()
-                const sortBy = item.getAttribute('data-sortby');
-                sortPosts(sortBy);
+            `
+            mainContainer.innerHTML += child
+            
+            
+            let board = document.getElementById('post-container')
+            const sortByText = document.getElementById('sort-by-text')
+           
+            const pagination = createPaginationElements(posts,board)
+            mainContainer.appendChild(pagination);
+            const sortPosts = (sortBy) => {
+                if (sortBy === 'recently_updated') {
+                    posts.sort((post1,post2) => compareDateTime(post1,post2,'recently_updated'))
+                    sortByText.textContent = "Recently Updated"
+                }else if (sortBy === 'new') {
+                    posts.sort((post1,post2) => compareDateTime(post1,post2,'asc'))
+                    sortByText.textContent = "New"
+                }else if (sortBy === 'old') {
+                    posts.sort((post1,post2) => compareDateTime(post1,post2,'desc'))
+                    sortByText.textContent = "Old"
+                }
+                board.innerHTML = ''
+                renderPosts(posts,board,0,post_display_limit)
+            };
+    
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault()
+                    const sortBy = item.getAttribute('data-sortby');
+                    sortPosts(sortBy);
+                });
             });
-        });
-
-        const pagination_nav = document.querySelectorAll('.page-link')
-        pagination_nav.forEach((page_number) =>{
-            page_number.addEventListener('click', (e)=>{
-                let clicked_index = e.target.textContent
-                console.log(clicked_index)
-                changeDisplayedPosts(clicked_index,posts,board)
-            })
-        })
-
-
-        renderPosts(posts,board,0,post_display_limit)
-        
+    
+            renderPosts(posts,board,0,post_display_limit)
+        }else{
+            showErrorPage();
+        }
     } catch (error) {
         console.log(error)
     }
 }
 
-function createPaginationElements(posts) {
+function createPaginationElements(posts,postBoard) {
     const pagination = document.createElement('nav');
-    pagination.innerHTML = `
-        <ul class="pagination">
-            ${
-                Array.from({ length: Math.ceil(posts.length / 10) }, (_, i) => `
-                    <li class="page-item">
-                        <p class="page-link">${i + 1}</p>
-                    </li>
-                `).join('')
-            }
-        </ul>
-    `;
+    const ul = document.createElement('ul');
+    ul.classList.add('pagination');
+
+    // Loop through the pages and create li elements with page links
+    for (let i = 0; i < Math.ceil(posts.length / post_display_limit); i++) {
+        const li = document.createElement('li');
+        li.classList.add('page-item');
+
+        const link = document.createElement('p');
+        link.classList.add('page-link');
+        link.textContent = i + 1;
+
+        // Adding event listener to the page link
+        link.addEventListener('click', (e) => {
+            const clicked_index = e.target.textContent;
+            sessionStorage.setItem('currentPaginationIndex', clicked_index)
+            changeDisplayedPosts(clicked_index, posts, postBoard);
+        });
+
+        li.appendChild(link);
+        ul.appendChild(li);
+    }
+    // Sets pagination index to 1 i.e first page on initial loading
+    sessionStorage.setItem('currentPaginationIndex',1)
+    pagination.appendChild(ul);
     return pagination;
 }
-
 
 function compareDateTime(obj1, obj2, sortOrder = 'asc') {
     if(sortOrder === 'recently_updated'){
@@ -713,6 +717,15 @@ function renderPosts(posts,board,starting_index,ending_index){
                 window.location.hash = `#post/${box.getAttribute('data-post-id')}`
             })
         })
+
+        const displayingPageInfo = document.createElement('p')
+        const currentPaginationIndex = sessionStorage.getItem('currentPaginationIndex')
+        if(!currentPaginationIndex){
+            displayingPageInfo.innerHTML = `Displaying page 1 of ${Math.ceil(posts.length/post_display_limit)}`
+        }else{
+            displayingPageInfo.innerHTML = `Displaying page ${sessionStorage.getItem('currentPaginationIndex')} of ${Math.ceil(posts.length/post_display_limit)}`
+        }
+        board.append(displayingPageInfo)
     } else {
         const postHTML = `
             <h1 class="text-center my-5"> No posts to show :( </h1>
@@ -726,11 +739,24 @@ function changeDisplayedPosts(clickedIndex,all_posts,post_board){
     const starting_index = (clickedIndex * post_display_limit) -10;
     const ending_index = starting_index + post_display_limit;
     if(all_posts.length < ending_index){
+        sessionStorage.setItem('currentPaginationIndex',clickedIndex)
         renderPosts(all_posts,post_board,starting_index,all_posts.length)
     }else{
         renderPosts(all_posts,post_board,starting_index,ending_index)
     }
     
+}
+
+function showErrorPage(){
+    mainContainer.innerHTML = ''
+
+    const child = `
+        <div>
+            <h1 class="text-center">Content not available :( </h1>
+        </div>
+    
+    `
+    mainContainer.innerHTML += child
 }
 
 function selectPageView() {
@@ -755,7 +781,7 @@ function selectPageView() {
           break;
         case '#createGaian':
           showCreateGaianPage();
-          break;    
+          break;
         default:
           showHomePage();
           break;
