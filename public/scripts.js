@@ -112,6 +112,29 @@ async function deletePost(postID) {
     }
 }
 
+async function deleteGaian(gaianID){
+    try {
+        const response = await fetch(`http://localhost:4000/gaians/${gaianID}`,{
+            method:'DELETE',
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+
+        if(response.ok){
+            const message = await response.json()
+            console.log(message)
+            return true
+        }else{
+            const errorMessage = await response.json()
+            console.log(errorMessage)
+            return false
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 async function getPostDetails(postID){
     try {
         const response = await fetch(`http://localhost:${PORT}/posts/${postID}`,{
@@ -348,25 +371,8 @@ async function showPostDetailsPage(id) {
             
             const updated_time = convertTimeToHoursMinutes(updatedTime)
             mainContainer.innerHTML = ''
-            
             const child = `
-            <div class="modal" id="cofirmPostDeletionModal" tabindex="-1">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title">Confirm Deletion</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <p>Do you want to delete this post?</p>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="button" id="confirm-delete" class="btn btn-danger">Delete</button>
-                </div>
-              </div>
-            </div>
-          </div>
+            ${createDeleteConfirmationModal('post').outerHTML}
             
             
             <div class="container">
@@ -382,7 +388,7 @@ async function showPostDetailsPage(id) {
                                 <p class="card-text post-details" style="white-space: pre-wrap;">${post.content} </p>
                                 <div class="text-center mt-4" id="post-button-options">
                                     <button type="button" id="edit-post" class="btn btn-primary mx-4">Edit</button>
-                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cofirmPostDeletionModal">Delete</button>
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeletion">Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -400,7 +406,7 @@ async function showPostDetailsPage(id) {
                 let postID = window.location.hash.substring(6)
                 let deleted = await deletePost(postID)
                 if(deleted){
-                    const modal = document.getElementById('cofirmPostDeletionModal'); 
+                    const modal = document.getElementById('confirmDeletion'); 
                     const bootstrapModal = bootstrap.Modal.getInstance(modal)
                     await bootstrapModal.hide();
 
@@ -408,6 +414,7 @@ async function showPostDetailsPage(id) {
                 }else{
                     alert("Something went wrong. Post was not deleted")
                 }
+                
             })
             
             document.querySelector('.post-username').addEventListener('click', (e)=>{
@@ -421,6 +428,33 @@ async function showPostDetailsPage(id) {
     } catch (error) {
         console.log(error)
     }
+}
+
+function createDeleteConfirmationModal(type) {
+    const modal = document.createElement('div');
+    modal.classList.add('modal');
+    modal.setAttribute('id', 'confirmDeletion');
+    modal.setAttribute('tabindex', '-1');
+
+    modal.innerHTML = `
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Do you want to delete this ${type}?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="confirm-delete" class="btn btn-danger">Delete</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return modal;
 }
 
 function editPostDetails(){
@@ -469,7 +503,7 @@ function editPostDetails(){
                 updated_date: currentDate,
                 updated_time: currentTime
             }
-            console.log(data)
+            console.log("Submitted data:",data)
             let postID = window.location.hash.substring(6);
             const response = await fetch(`http://localhost:${PORT}/posts/${postID}`, {
                 method: 'PATCH',
@@ -584,12 +618,13 @@ async function showGaianProfilePage(gaianID){
         if(gaian){
             mainContainer.innerHTML = ''
             const child = `
+                ${createDeleteConfirmationModal('gaian').outerHTML}
                 <div class="container mt-5">
                     <div class="row">
                         <div class="col-12 text-center">
                             <h2>${gaian.username}'s Profile</h2>
                             <div class="mt-5">
-                                <button type="button" class="btn btn-danger">Delete Gaian</button>
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#confirmDeletion" class="btn btn-danger">Delete Gaian</button>
                             </div>
                         </div>
                     </div>
@@ -624,6 +659,21 @@ async function showGaianProfilePage(gaianID){
                     sortPosts(posts,sortBy,sortByText,board);
                 });
             });
+
+            document.getElementById('confirm-delete').addEventListener('click', async ()=>{
+                let gaianID = window.location.hash.substring(7)
+                let deleted = await deleteGaian(gaianID)
+                if(deleted){
+                    const modal = document.getElementById('confirmDeletion'); 
+                    const bootstrapModal = bootstrap.Modal.getInstance(modal)
+                    await bootstrapModal.hide();
+
+                    window.location.hash = '#gaians'
+                }else{
+                    alert("Something went wrong. Gaian was not deleted")
+                }
+                
+            })
     
             renderPosts(posts,board,0,post_display_limit,1)
         }else{

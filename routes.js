@@ -200,7 +200,7 @@ router.delete('/posts/:id', async (req, res) => {
         const deletePost = await pool.query(
             "DELETE FROM post WHERE id = $1 RETURNING *", [id]
         );
-        console.log("Post to be deleted: ", deletePost)
+        console.log("Post to be deleted: ", deletePost.rows)
         if (deletePost.rows.length === 1) {
             return res.status(200).json(deletePost.rows[0]);
         } else {
@@ -212,6 +212,25 @@ router.delete('/posts/:id', async (req, res) => {
     }
 });
 
+
+router.delete('/gaians/:id', async(req,res)=>{
+    try {
+        const id = req.params.id
+        const deleteGaian = await pool.query(
+            "DELETE FROM gaian WHERE id = $1 RETURNING *",[id]
+        )
+        console.log("Gaian deleted: ",deleteGaian)
+        if(deleteGaian.rows.length ==1){
+            console.log("Deleted gaian:", deleteGaian.rows[0])
+            return res.status(200).json("Succesfully deleted gaian!")
+        }else{
+            return res.status(404).json("Gaian not found!")
+        }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json("An internal server error occurred.");
+    }
+})
 
 router.get('/',(req,res)=>{
     res.sendFile('index.html')
